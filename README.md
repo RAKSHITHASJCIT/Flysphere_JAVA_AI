@@ -39,19 +39,24 @@ git clone https://github.com/buildwithrahulg/FlySphere.git
 
 ### 2️⃣ Start Backend
 
+```
 cd flysphere-node-backend
 npm install
 node server.js
+```
 
 ### 3️⃣ Start Frontend
 
-cd flysphere-frontend 
-npm install 
+```
+cd flysphere-frontend
+npm install
 ng serve
+```
 
 Open:
+```
 http://localhost:4200
-
+```
 ---
 ## 🔐 Authentication Flow
 
