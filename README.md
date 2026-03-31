@@ -1,6 +1,7 @@
 # ✈ FlySphere - Full Stack Airline Management System
 
 FlySphere is a full-stack airline booking and management system built using Angular, Node.js, Express, and PostgreSQL.
+
 ---
 ## 🚀 Tech Stack
 ### Frontend
@@ -65,12 +66,14 @@ http://localhost:4200
 ✅ Never push directly to `main`  
 ✅ Always create a branch  
 
-Example:
+### Example:
 
+```
 git checkout -b feature-admin-improvement
 git add .
 git commit -m "Improved admin panel"
 git push origin feature-admin-improvement
+```
 
 Then create a Pull Request.
 
