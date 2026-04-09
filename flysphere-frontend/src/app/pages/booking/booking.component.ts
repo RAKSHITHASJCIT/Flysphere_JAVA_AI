@@ -55,6 +55,17 @@ export class BookingComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // ✅ Restore passengers & contact if coming back from Review
+    const state = history.state;
+
+    if (state?.passengers && state.passengers.length > 0) {
+      this.passengers = state.passengers;
+    }
+
+    if (state?.contact) {
+      this.contact = state.contact;
+    }
+
     // ✅ Ensure passenger initialization happens after data is fully ready
     Promise.resolve().then(() => {
       if (this.passengers.length === 0) {
@@ -111,11 +122,37 @@ export class BookingComponent implements OnInit, AfterViewInit {
   /* ================= PRICING ================= */
 
   get baseTotal(): number {
-    const adultFare = this.bookingData?.fare?.adultFare || 0;
-    const childFare = this.bookingData?.fare?.childFare || 0;
 
-    return (adultFare * this.adultCount) +
-           (childFare * this.childCount);
+    // ✅ ROUND TRIP
+    if (this.bookingData?.tripType === 'round') {
+
+      const depAdult = Number(this.bookingData?.departure?.fare?.adultFare) || 0;
+      const depChild = Number(this.bookingData?.departure?.fare?.childFare) || 0;
+
+      const retAdult = Number(this.bookingData?.return?.fare?.adultFare) || 0;
+      const retChild = Number(this.bookingData?.return?.fare?.childFare) || 0;
+
+      const adults = Number(this.bookingData?.adults) || 0;
+      const children = Number(this.bookingData?.children) || 0;
+
+      const total =
+        (depAdult + retAdult) * adults +
+        (depChild + retChild) * children;
+
+      return Math.round(total);
+    }
+
+    // ✅ ONE WAY
+    const adultFare = Number(this.bookingData?.fare?.adultFare) || 0;
+    const childFare = Number(this.bookingData?.fare?.childFare) || 0;
+
+    const adults = Number(this.bookingData?.adults) || 0;
+    const children = Number(this.bookingData?.children) || 0;
+
+    const total = (adultFare * adults) +
+                  (childFare * children);
+
+    return Math.round(total);
   }
 
   getSeatPrice(type: string): number {
@@ -145,11 +182,46 @@ export class BookingComponent implements OnInit, AfterViewInit {
       total += this.insurancePrice * this.passengers.length;
     }
 
-    return total;
+    return Math.round(total);
+  }
+
+  /* ✅ Per Passenger Subtotal (Fix for string concatenation issue) */
+  getPassengerSubtotal(p: any): number {
+
+    let fareTotal = 0;
+
+    if (this.bookingData?.tripType === 'round') {
+
+      const depAdult = Number(this.bookingData?.departure?.fare?.adultFare) || 0;
+      const depChild = Number(this.bookingData?.departure?.fare?.childFare) || 0;
+
+      const retAdult = Number(this.bookingData?.return?.fare?.adultFare) || 0;
+      const retChild = Number(this.bookingData?.return?.fare?.childFare) || 0;
+
+      if (p.type === 'adult') {
+        fareTotal = depAdult + retAdult;
+      } else {
+        fareTotal = depChild + retChild;
+      }
+
+    } else {
+
+      const adultFare = Number(this.bookingData?.fare?.adultFare) || 0;
+      const childFare = Number(this.bookingData?.fare?.childFare) || 0;
+
+      fareTotal = p.type === 'adult' ? adultFare : childFare;
+    }
+
+    const addons =
+      this.getSeatPrice(p.seatPreference) +
+      this.getMealPrice(p.mealPreference) +
+      (p.baggage ? this.baggagePrice : 0);
+
+    return Math.round(fareTotal + addons);
   }
 
   get taxAmount(): number {
-    return (this.baseTotal + this.addonsTotal) * 0.12;
+    return Math.round((this.baseTotal + this.addonsTotal) * 0.12);
   }
 
   get convenienceFee(): number {
@@ -157,7 +229,12 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   get grandTotal(): number {
-    return this.baseTotal + this.addonsTotal + this.taxAmount + this.convenienceFee;
+    return Math.round(
+      this.baseTotal +
+      this.addonsTotal +
+      this.taxAmount +
+      this.convenienceFee
+    );
   }
 
   validateBooking(): boolean {

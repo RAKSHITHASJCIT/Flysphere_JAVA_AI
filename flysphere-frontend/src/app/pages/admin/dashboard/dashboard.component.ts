@@ -22,16 +22,15 @@ import { RouterModule } from '@angular/router';
       <!-- ✅ First Row: Fleet Summary -->
       <div class="fleet-row-wrapper">
 
-        <!-- Boeing -->
-        <div class="fleet-modern boeing-modern">
+        <!-- Total Flights -->
+        <div class="total-modern">
           <div>
-            <div class="fleet-title">Boeing 737</div>
-            <div class="fleet-price">₹{{ boeingFare }}</div>
-            <div class="fleet-label">{{ boeingCount }} Flights</div>
+            <div class="total-title">Total Flights</div>
+            <div class="total-value">{{ total }}</div>
           </div>
-          <img class="fleet-plane"
-               src="https://freepngimg.com/download/airplane/125940-flying-airplane-vector-hd-image-free.png"
-               alt="boeing">
+          <img class="total-image"
+               src="https://freepngimg.com/thumb/map/81058-blue-earth-airplane-flight-map-free-hd-image.png"
+               alt="world-map">
         </div>
 
         <!-- Airbus -->
@@ -46,15 +45,16 @@ import { RouterModule } from '@angular/router';
                alt="airbus">
         </div>
 
-        <!-- Total Flights -->
-        <div class="total-modern">
+        <!-- Boeing -->
+        <div class="fleet-modern boeing-modern">
           <div>
-            <div class="total-title">Total Flights</div>
-            <div class="total-value">{{ total }}</div>
+            <div class="fleet-title">Boeing 737</div>
+            <div class="fleet-price">₹{{ boeingFare }}</div>
+            <div class="fleet-label">{{ boeingCount }} Flights</div>
           </div>
-          <img class="total-image"
-               src="https://freepngimg.com/thumb/map/81058-blue-earth-airplane-flight-map-free-hd-image.png"
-               alt="world-map">
+          <img class="fleet-plane"
+               src="https://freepngimg.com/download/airplane/125940-flying-airplane-vector-hd-image-free.png"
+               alt="boeing">
         </div>
 
       </div>
@@ -82,15 +82,6 @@ import { RouterModule } from '@angular/router';
           <div class="kpi-value">{{ bookingCount }}</div>
         </div>
 
-        <!-- ✅ Seats Tile -->
-        <div class="kpi-card" style="border-left:5px solid #7c3aed;">
-          <div class="kpi-title">Seats</div>
-          <div style="margin-top:10px; font-size:14px; color:#374151;">
-            <div>Economy – {{ economySeats }}</div>
-            <div>Business – {{ businessSeats }}</div>
-            <div>First Class – {{ firstClassSeats }}</div>
-          </div>
-        </div>
 
       </div>
 
@@ -594,6 +585,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadStats() {
+
+    /* ✅ Fetch Flights Data */
     this.http.get<any[]>('http://localhost:5000/api/flights')
       .subscribe(data => {
 
@@ -689,6 +682,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.boeingFare = calculateAverageFare(boeing);
 
         // ✅ Stabilize Angular change detection for dashboard
+        this.cdr.detectChanges();
+      });
+
+    /* ✅ Fetch All Bookings Count (User Side) */
+    this.http.get<any[]>('http://localhost:5000/api/bookings')
+      .subscribe(bookings => {
+        this.bookingCount = bookings.length;
         this.cdr.detectChanges();
       });
   }

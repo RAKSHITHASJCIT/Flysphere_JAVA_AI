@@ -77,20 +77,49 @@
   margin-bottom: 10px;
 }
 
-.passenger-summary {
-  margin-bottom: 14px;
+.premium-passenger {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
-.passenger-summary strong {
-  display: block;
+.premium-passenger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
 }
 
-.passenger-summary .addons {
+.passenger-top {
+  margin-bottom: 8px;
+}
+
+.passenger-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.passenger-meta {
   font-size: 13px;
   color: #64748b;
+}
+
+.premium-addons {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.addon-badge {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
 }
 
 /* ✅ Pricing */
@@ -102,27 +131,60 @@
 
 .price-card .grand {
   font-size: 18px;
-  font-weight: 700;
-  color: #2563eb;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: linear-gradient(90deg, rgba(37,99,235,0.08), rgba(0,179,255,0.08));
+  padding: 10px 12px;
+  border-radius: 10px;
 }
 
 .confirm-btn {
   width: 100%;
-  margin-top: 20px;
-  padding: 14px;
+  margin-top: 22px;
+  padding: 16px;
   border-radius: 999px;
   border: none;
-  font-size: 16px;
-  font-weight: 700;
-  background: linear-gradient(90deg, #16a34a, #15803d);
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
   color: #ffffff;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 10px 24px rgba(37,99,235,0.35);
 }
 
 .confirm-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(37,99,235,0.45);
+}
+
+/* ✅ Premium Modify Button */
+.modify-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.modify-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(22,163,74,0.4);
+}
+
+/* ✅ Flight Date Styling */
+.flight-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 4px;
 }
 
 /* ✅ Responsive */

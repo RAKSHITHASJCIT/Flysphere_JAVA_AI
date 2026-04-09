@@ -72,7 +72,7 @@ export const routes: Routes = [
         .then(m => m.ReviewComponent)
   },
   {
-    path: 'confirmation',
+    path: 'confirmation/:bookingId',
     loadComponent: () =>
       import('./pages/confirmation/confirmation.component')
         .then(m => m.ConfirmationComponent)

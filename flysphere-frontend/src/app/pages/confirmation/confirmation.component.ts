@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { BookingNavbarComponent } from '../../shared/booking-navbar/booking-navbar.component';
 
 @Component({
   selector: 'app-confirmation',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BookingNavbarComponent],
   templateUrl: './confirmation.component.html',
   styleUrls: ['./confirmation.component.css']
 })
@@ -16,20 +18,45 @@ export class ConfirmationComponent implements OnInit {
   passengers: any[] = [];
   totals: any;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
-    const state = history.state;
+    console.log('✅ Confirmation component loaded');
+    const bookingIdParam = this.route.snapshot.paramMap.get('bookingId');
 
-    if (!state || !state.bookingId) {
+    if (!bookingIdParam) {
       this.router.navigate(['/search']);
       return;
     }
 
-    this.bookingId = state.bookingId;
-    this.bookingData = state.bookingData;
-    this.passengers = state.passengers || [];
-    this.totals = state.totals || {};
+    this.bookingId = bookingIdParam;
+
+    // ✅ Fetch booking from backend (production safe)
+    this.http.get<any>(`http://localhost:5000/api/bookings/${this.bookingId}`)
+      .subscribe({
+        next: (response) => {
+          if (!response?.success) {
+            this.router.navigate(['/search']);
+            return;
+          }
+
+          console.log('✅ Booking API response:', response);
+          console.log('✅ Booking object:', response.booking);
+
+          this.bookingData = response.booking;
+          this.passengers = response.passengers || [];
+          this.totals = {
+            grandTotal: response.booking.total_amount
+          };
+        },
+        error: () => {
+          this.router.navigate(['/search']);
+        }
+      });
   }
 
   printTicket() {
@@ -37,17 +64,10 @@ export class ConfirmationComponent implements OnInit {
   }
 
   downloadTicket() {
-    if (!this.bookingId) return;
-
-    const bookingNumericId = history.state?.bookingIdNumeric || null;
-
-    if (!bookingNumericId) {
-      alert('Unable to download ticket.');
-      return;
-    }
+    if (!this.bookingData?.id) return;
 
     window.open(
-      `http://localhost:5000/api/bookings/${bookingNumericId}/ticket`,
+      `http://localhost:5000/api/bookings/${this.bookingData.id}/ticket`,
       '_blank'
     );
   }

@@ -65,6 +65,59 @@ router.post('/', async (req, res) => {
   }
 });
 
+/* ✅ Get Full Booking Details (Production Safe) */
+router.get('/:bookingId', async (req, res) => {
+  const bookingId = req.params.bookingId;
+
+  try {
+    console.log('✅ USING JOIN QUERY WITH FLIGHTMGTABLE');
+    // ✅ Join bookings + flights
+    const bookingResult = await pool.query(
+      `SELECT 
+        b.id,
+        b.booking_id,
+        b.total_amount,
+        b.created_at,
+        f.airlinename,
+        f.flighttype,
+        f.departureairport,
+        f.arrivalairport,
+        f.departuredate,
+        f.arrivaldate,
+        f.departuretime,
+        f.arrivaltime
+      FROM bookings b
+      LEFT JOIN flightmgtable f 
+        ON b.flight_id = f.flightid
+      WHERE b.booking_id = $1`,
+      [bookingId]
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // ✅ Fetch passengers
+    const passengersResult = await pool.query(
+      'SELECT * FROM passengers WHERE booking_id = $1',
+      [booking.id]
+    );
+
+    res.json({
+      success: true,
+      booking: booking,
+      passengers: passengersResult.rows
+    });
+
+  } catch (error) {
+    console.error('Fetch Booking Error:', error);
+    res.status(500).json({ error: 'Failed to fetch booking details' });
+  }
+});
+
+
 /* ✅ Generate PDF Ticket */
 router.get('/:id/ticket', async (req, res) => {
   const bookingId = req.params.id;

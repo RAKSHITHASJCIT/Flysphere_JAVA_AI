@@ -307,6 +307,11 @@ export class FlightSearchComponent implements OnInit {
       this.flights = data.map(f => ({
         id: f.flightid,
         airline: f.airlinename,
+
+        // ✅ Added for display
+        flightno: f.flightno,
+        flighttype: f.flighttype,
+
         code: f.flightno,
         departTime: f.departuretime?.substring(0, 5),
         departCity: f.departureairport,
@@ -363,6 +368,11 @@ export class FlightSearchComponent implements OnInit {
           this.returnFlights = returnData.map(f => ({
             id: f.flightid,
             airline: f.airlinename,
+
+            // ✅ Added for display
+            flightno: f.flightno,
+            flighttype: f.flighttype,
+
             code: f.flightno,
             departTime: f.departuretime?.substring(0, 5),
             departCity: f.departureairport,
@@ -600,13 +610,13 @@ export class FlightSearchComponent implements OnInit {
       return;
     }
 
-    // ✅ ONE WAY FLOW (existing)
+    // ✅ ONE WAY FLOW (normalized structure)
     const fareToBook = selectedFare || this.selectedFare;
     if (!fareToBook) return;
 
     const bookingData = {
       tripType: 'oneway',
-      ...this.selectedFlight,
+      flight: this.selectedFlight,   // ✅ wrapped inside flight (consistent with round-trip)
       fare: fareToBook,
       adults: this.adults,
       children: this.children

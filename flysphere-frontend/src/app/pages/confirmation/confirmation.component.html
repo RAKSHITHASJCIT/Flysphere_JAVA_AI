@@ -1,66 +1,77 @@
-<div class="confirmation-wrapper" *ngIf="bookingId">
+<!-- ✅ Reuse Premium Booking Navbar -->
+<app-booking-navbar></app-booking-navbar>
 
-  <!-- ✅ STEP HEADER -->
-  <div class="step-progress">
-    <div class="step-item completed">
-      <div class="circle">1</div>
-      <span>Booking</span>
+<!-- ✅ SINGLE FRAME CONFIRMATION LAYOUT -->
+<div class="confirmation-wrapper" *ngIf="bookingData">
+
+  <div class="confirmation-frame">
+
+    <!-- ✅ HEADER -->
+    <div class="confirmation-header">
+      <div class="status-icon">✓</div>
+      <div class="header-text">
+        <h1>Booking Confirmed</h1>
+        <p>Your journey with FlySphere is successfully secured.</p>
+      </div>
+    </div>
+
+    <!-- ✅ SUMMARY ROW -->
+    <div class="confirmation-top-grid">
+
+      <div class="top-card">
+        <div class="label">Booking Reference</div>
+        <div class="value booking-ref">{{ bookingId }}</div>
       </div>
 
-      <!-- ✅ Download Ticket Button -->
-      <button class="download-btn"
-              (click)="downloadTicket()">
-        Download Ticket (PDF)
+      <div class="top-card">
+        <div class="label">Route</div>
+        <div class="value route-compact">
+          {{ bookingData?.departureairport }} → {{ bookingData?.arrivalairport }}
+        </div>
+      </div>
+
+      <div class="top-card">
+        <div class="label">Total Paid</div>
+        <div class="value total-amount">
+          ₹ {{ totals?.grandTotal | number:'1.0-0' }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ✅ DETAILS -->
+    <div class="confirmation-details">
+
+      <div class="details-section">
+        <div class="section-title">Flight Details</div>
+        <div class="meta">
+          {{ bookingData?.airlinename }} • {{ bookingData?.flighttype }}
+        </div>
+        <div class="meta">
+          {{ bookingData?.departuredate | date:'mediumDate' }}
+          |
+          {{ bookingData?.departuretime }} - {{ bookingData?.arrivaltime }}
+        </div>
+      </div>
+
+      <div class="details-section">
+        <div class="section-title">Passengers</div>
+
+        <div *ngFor="let p of passengers" class="passenger-row">
+          {{ p.title }} {{ p.firstName }} {{ p.lastName }}
+          <span class="type">({{ p.type | titlecase }})</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ✅ ACTION -->
+    <div class="confirmation-action">
+      <button class="download-btn" (click)="downloadTicket()">
+        Download E‑Ticket (PDF)
       </button>
-    <div class="line completed-line"></div>
-    <div class="step-item completed">
-      <div class="circle">2</div>
-      <span>Review</span>
-    </div>
-    <div class="line completed-line"></div>
-    <div class="step-item active">
-      <div class="circle">3</div>
-      <span>Confirmation</span>
-    </div>
-  </div>
-
-  <!-- ✅ SUCCESS ICON -->
-  <div class="success-container">
-    <div class="checkmark-circle">
-      <div class="checkmark"></div>
-    </div>
-    <h2>Booking Confirmed!</h2>
-    <p>Your flight has been successfully booked.</p>
-  </div>
-
-  <!-- ✅ BOOKING ID -->
-  <div class="booking-id-card">
-    <span>Booking ID</span>
-    <h1>{{ bookingId }}</h1>
-  </div>
-
-  <!-- ✅ SUMMARY -->
-  <div class="summary-card">
-    <h3>{{ bookingData?.departCity }} → {{ bookingData?.arriveCity }}</h3>
-    <p>{{ bookingData?.airline }} • {{ bookingData?.fare?.name }}</p>
-
-    <hr>
-
-    <div *ngFor="let p of passengers">
-      {{ p.title }} {{ p.firstName }} {{ p.lastName }} - {{ p.type | titlecase }}
     </div>
 
-    <hr>
-
-    <div class="total">
-      Total Paid: ₹ {{ totals?.grandTotal | number:'1.0-0' }}
-    </div>
-  </div>
-
-  <!-- ✅ ACTION BUTTONS -->
-  <div class="action-buttons">
-    <button class="print-btn" (click)="printTicket()">Print Ticket</button>
-    <button class="home-btn" (click)="goHome()">Return to Home</button>
   </div>
 
 </div>

@@ -10,17 +10,25 @@
   </div>
 
   <div class="booking-steps">
-    <div class="step active">
+    <div class="step"
+         [class.active]="currentStep === 1"
+         [class.completed]="currentStep > 1"
+         (click)="navigateTo(1)">
       <span class="circle">1</span>
       <span>Booking</span>
     </div>
     <div class="step-line"></div>
-    <div class="step">
+    <div class="step"
+         [class.active]="currentStep === 2"
+         [class.completed]="currentStep > 2"
+         (click)="navigateTo(2)">
       <span class="circle">2</span>
       <span>Review</span>
     </div>
     <div class="step-line"></div>
-    <div class="step">
+    <div class="step"
+         [class.active]="currentStep === 3"
+         (click)="navigateTo(3)">
       <span class="circle">3</span>
       <span>Confirmation</span>
     </div>

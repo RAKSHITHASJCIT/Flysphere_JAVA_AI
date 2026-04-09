@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { BookingNavbarComponent } from '../../shared/booking-navbar/booking-navbar.component';
 
 @Component({
   selector: 'app-review',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BookingNavbarComponent],
   templateUrl: './review.component.html',
   styleUrls: ['./review.component.css']
 })
@@ -36,22 +37,46 @@ export class ReviewComponent implements OnInit {
   confirmBooking() {
     const payload = {
       user_id: 1, // TODO: replace with logged-in user id
-      flight_id: this.bookingData?.flightId || this.bookingData?.id,
+      flight_id: this.bookingData?.tripType === 'round'
+        ? this.bookingData?.departure?.flight?.id
+        : this.bookingData?.flight?.id,
       passengers: this.passengers,
       total_amount: this.totals?.grandTotal
     };
 
+    console.log('🚀 Sending booking payload:', payload);
+
     this.http.post('http://localhost:5000/api/bookings', payload)
-      .subscribe((response: any) => {
-        this.router.navigate(['/confirmation'], {
-          state: {
-            bookingId: response.booking.booking_id,
-            bookingIdNumeric: response.booking.id,
-            bookingData: this.bookingData,
-            passengers: this.passengers,
-            totals: this.totals
+      .subscribe({
+        next: (response: any) => {
+          console.log('✅ Booking API response:', response);
+
+          if (!response || !response.booking) {
+            alert('Booking succeeded but response format is unexpected.');
+            return;
           }
-        });
+
+          // ✅ Navigate using route param (production-safe)
+          this.router.navigate([
+            '/confirmation',
+            response.booking.booking_id
+          ]);
+        },
+        error: (error) => {
+          console.error('❌ Booking API failed:', error);
+          alert('Booking failed. Please check backend server or try again.');
+        }
       });
+  }
+
+  goBackToBooking() {
+    this.router.navigate(['/booking'], {
+      state: {
+        bookingData: this.bookingData,
+        passengers: this.passengers,
+        contact: this.contact,
+        totals: this.totals
+      }
+    });
   }
 }

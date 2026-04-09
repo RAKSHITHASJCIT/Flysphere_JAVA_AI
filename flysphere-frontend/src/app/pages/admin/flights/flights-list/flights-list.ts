@@ -48,10 +48,19 @@ export class FlightsList implements OnInit, OnDestroy {
   }
 
   flights: any[] = [];
-  allFlights: any[] = [];
+  allFlights: any[] = [];           // Original dataset (never mutate)
+  filteredFlights: any[] = [];      // Working dataset for filters
 
-  // ✅ Search by Flight Number only
+  // ✅ Pagination
+  currentPage: number = 1;
+  pageSize: number = 5;
+
+  // ✅ Search & Filters
   searchText: string = '';
+  selectedAirline: string = '';
+  selectedStatus: string = '';
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   displayedColumns: string[] = [
     'flightno',
@@ -195,7 +204,8 @@ export class FlightsList implements OnInit, OnDestroy {
 
         // ✅ Always reapply filters after refresh (remove conditional refresh logic)
         this.allFlights = newFlights;
-        this.flights = this.allFlights;
+        this.filteredFlights = [...this.allFlights];
+        this.applySearch(); // ✅ Always reapply filters after refresh
         this.cdr.detectChanges();
       });
   }
@@ -205,18 +215,129 @@ export class FlightsList implements OnInit, OnDestroy {
     return [...new Set(list)];
   }
 
+  get statuses(): string[] {
+    const list = this.allFlights.map(f => f.flightstatus || f.FlightStatus);
+    return [...new Set(list)];
+  }
+
   // ✅ Simple search by Flight Number
   applySearch() {
-    if (!this.searchText) {
-      this.flights = this.allFlights;
-      return;
+    this.currentPage = 1;
+
+    let filtered = [...this.allFlights]; // ✅ Always start from original dataset
+
+    if (this.searchText) {
+      const term = this.searchText.toLowerCase();
+      filtered = filtered.filter(f =>
+        (f.flightno || f.FlightNo || '').toLowerCase().includes(term)
+      );
     }
 
-    const term = this.searchText.toLowerCase();
+    if (this.selectedAirline) {
+      filtered = filtered.filter(f =>
+        (f.airlinename || f.AirlineName) === this.selectedAirline
+      );
+    }
 
-    this.flights = this.allFlights.filter(f =>
-      (f.flightno || f.FlightNo || '').toLowerCase().includes(term)
-    );
+    if (this.selectedStatus) {
+      filtered = filtered.filter(f =>
+        (f.flightstatus || f.FlightStatus) === this.selectedStatus
+      );
+    }
+
+    if (this.sortColumn) {
+      filtered.sort((a, b) => {
+        const valA = (a[this.sortColumn] || '').toString().toLowerCase();
+        const valB = (b[this.sortColumn] || '').toString().toLowerCase();
+        return this.sortDirection === 'asc'
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
+      });
+    }
+
+    this.filteredFlights = filtered; // ✅ Do NOT mutate allFlights
+    this.updatePagination();
+  }
+
+  sort(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applySearch();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredFlights.length / this.pageSize) || 1;
+  }
+
+  get totalRecords(): number {
+    return this.filteredFlights.length;
+  }
+
+  get startRecord(): number {
+    if (this.totalRecords === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
+  }
+
+  updatePagination() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.flights = this.filteredFlights.slice(start, end);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  // ✅ Export to CSV
+  exportToCSV() {
+    if (!this.allFlights.length) return;
+
+    const headers = [
+      'Flight No',
+      'Airline',
+      'Departure',
+      'Arrival',
+      'Status'
+    ];
+
+    const rows = this.allFlights.map(f => [
+      f.flightno || f.FlightNo,
+      f.airlinename || f.AirlineName,
+      f.departureairport || f.DepartureAirport,
+      f.arrivalairport || f.ArrivalAirport,
+      f.flightstatus || f.FlightStatus
+    ]);
+
+    const csvContent =
+      [headers, ...rows]
+        .map(e => e.join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'flights.csv');
+    link.click();
   }
 
   /**

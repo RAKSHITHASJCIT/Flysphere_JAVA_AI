@@ -279,11 +279,19 @@
 
 /* ✅ Passenger Card */
 .passenger-card {
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
+  margin-bottom: 28px;
+  padding: 24px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(37,99,235,0.12);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+}
+
+.passenger-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37,99,235,0.10);
 }
 
 .passenger-header {
@@ -323,29 +331,178 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  column-gap: 20px;
+  row-gap: 20px;
+  align-items: start;
+}
+
+/* Make DOB slightly compact */
+.floating-field input[type="date"] {
+  height: 46px;
+}
+
+/* Premium input field wrapper spacing */
+.form-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Make second row balanced */
+.form-grid > div:nth-child(3),
+.form-grid > div:nth-child(4) {
+  grid-column: span 1;
 }
 
 .form-grid input,
 .form-grid select {
-  padding: 12px;
-  border-radius: 10px;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   font-size: 14px;
+  font-weight: 500;
+  background: #ffffff;
+  transition: all 0.25s ease;
   outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.form-grid input:hover,
+.form-grid select:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
 }
 
 .form-grid input:focus,
 .form-grid select:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
 }
 
 /* ✅ Add-ons Layout Fix */
 .addons-section {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid #e2e8f0;
+}
+
+/* ================= LUXURY ADD-ON CARDS ================= */
+
+.luxury-addon-card {
+  margin-top: 18px;
+  border-radius: 16px;
+  padding: 18px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.luxury-addon-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 35px rgba(37, 99, 235, 0.15);
+}
+
+.luxury-addon-card.active {
+  border: 1px solid #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.insurance-card {
+  margin-top: 30px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08));
+}
+
+.addon-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addon-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.addon-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.addon-price {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1e3a8a;
+}
+
+.addon-price small {
+  font-weight: 500;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ✅ Toggle Switch */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  border-radius: 999px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .slider {
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* ✅ Better spacing overall */
+.details-panel {
+  padding-bottom: 40px;
 }
 
 .addons-grid {
@@ -405,19 +562,21 @@
 /* ✅ Buttons */
 .add-btn {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   border-radius: 999px;
-  border: 1px dashed #2563eb;
-  background: #f1f5ff;
-  color: #2563eb;
+  border: none;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #ffffff;
   font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  margin: 24px 0;
-  text-align: center;
+  margin: 28px 0;
+  transition: all 0.25s ease;
 }
 
 .add-btn:hover:not(:disabled) {
-  background: #e0ecff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(37,99,235,0.35);
 }
 
 .add-btn:disabled {
@@ -486,4 +645,259 @@
   60% { transform: translateX(-4px); }
   80% { transform: translateX(4px); }
   100% { transform: translateX(0); }
+}
+
+/* ================= PREMIUM FARE PANEL ENHANCEMENT ================= */
+
+.flight-block {
+  background: #f8f9fc;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #e4e7f2;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+.flight-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.flight-main {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.flight-sub {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.passenger-summary {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.passenger-heading {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.price-breakdown .row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.subtotal {
+  font-weight: 700;
+  color: #111827;
+  margin-top: 6px;
+}
+
+.price-breakdown hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+.grand-total {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.grand-total span:last-child {
+  font-size: 20px;
+}
+
+/* ================= NEXT‑LEVEL PREMIUM POLISH ================= */
+
+/* Gradient accent border for fare card */
+.fare-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.fare-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb, #00b3ff);
+}
+
+/* Animated total highlight */
+.grand-total {
+  background: linear-gradient(90deg, rgba(37,99,235,0.08), rgba(0,179,255,0.08));
+  padding: 10px 12px;
+  border-radius: 10px;
+  animation: glowTotal 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes glowTotal {
+  from {
+    box-shadow: 0 0 0 rgba(37,99,235,0.15);
+  }
+  to {
+    box-shadow: 0 0 14px rgba(37,99,235,0.25);
+  }
+}
+
+/* Smooth price transition effect */
+.price-breakdown .row span:last-child {
+  transition: all 0.25s ease;
+}
+
+/* Slight hover effect on passenger summaries */
+.passenger-summary:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+/* Micro interaction for buttons */
+.continue-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.continue-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  transform: skewX(-20deg);
+}
+
+.continue-btn:hover::after {
+  left: 130%;
+  transition: 0.6s ease;
+}
+
+/* ================= PREMIUM OPTION TILES ================= */
+
+.premium-options-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Seat & Meal side-by-side */
+.two-column-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.premium-option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1f2937;
+  letter-spacing: 0.4px;
+}
+
+/* ================= SEGMENTED CONTROL STYLE ================= */
+
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 3px;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.segmented-control button {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segmented-control button:hover {
+  background: #e2e8f0;
+}
+
+.segmented-control button.active {
+  background: rgba(37,99,235,0.9);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(37,99,235,0.18);
+}
+
+/* ================= FLOATING LABEL FIELDS ================= */
+
+.floating-field {
+  position: relative;
+}
+
+.floating-field input,
+.floating-field select {
+  width: 100%;
+}
+
+.floating-field label {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  font-size: 13px;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  padding: 0 6px;
+}
+
+.floating-field input:focus + label,
+.floating-field input:not(:placeholder-shown) + label,
+.floating-field select:focus + label,
+.floating-field select:not([value=""]) + label {
+  top: -8px;
+  font-size: 11px;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* Subtle premium divider above passenger form */
+.passenger-card .form-grid {
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
 }
