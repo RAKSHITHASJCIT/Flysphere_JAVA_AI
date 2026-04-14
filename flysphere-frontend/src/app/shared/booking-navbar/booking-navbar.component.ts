@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../services/auth'; // same path used in FlightSearchComponent
 
 @Component({
   selector: 'app-booking-navbar',
@@ -10,11 +11,16 @@ import { filter } from 'rxjs/operators';
   templateUrl: './booking-navbar.component.html',
   styleUrls: ['./booking-navbar.component.css']
 })
-export class BookingNavbarComponent {
+export class BookingNavbarComponent implements OnInit {
 
   currentStep: number = 1;
+  user: any = null;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -22,6 +28,21 @@ export class BookingNavbarComponent {
       });
 
     this.updateStep();
+  }
+
+  ngOnInit(): void {
+    this.auth.getProfile().subscribe({
+      next: (res) => {
+        this.user = res;
+        this.cdr.detectChanges();   // ensures navbar updates immediately
+      },
+      error: () => this.logout()
+    });
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   navigateTo(step: number) {

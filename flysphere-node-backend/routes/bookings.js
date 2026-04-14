@@ -3,9 +3,40 @@ const router = express.Router();
 const pool = require('../db');
 const PDFDocument = require('pdfkit');
 
-// ✅ Generate Booking ID
+ // ✅ Generate Booking ID
 function generateBookingId() {
   return 'FS' + Math.floor(100000 + Math.random() * 900000);
+}
+
+async function decrementSeatsForFlight(client, flightId, columnName, seatsToBook) {
+  const res = await client.query(
+    'SELECT * FROM FlightMGTable WHERE FlightId = $1 FOR UPDATE',
+    [flightId]
+  );
+
+  if (res.rows.length === 0) {
+    throw new Error('Flight not found');
+  }
+
+  const row = res.rows[0];
+
+  // pg returns column names in lower-case by default
+  const lowerKey = columnName.toLowerCase();
+  const currentSeats =
+    typeof row[lowerKey] === 'number'
+      ? row[lowerKey]
+      : Number(row[columnName]) || 0;
+
+  if (currentSeats < seatsToBook) {
+    throw new Error('Not enough seats left');
+  }
+
+  const newSeats = currentSeats - seatsToBook;
+
+  await client.query(
+    `UPDATE FlightMGTable SET ${columnName} = $1 WHERE FlightId = $2`,
+    [newSeats, flightId]
+  );
 }
 
 // ✅ Create Booking
@@ -16,7 +47,8 @@ router.post('/', async (req, res) => {
     return_flight_id,
     passengers,
     total_amount,
-    trip_type
+    trip_type,
+    cabin_class
   } = req.body;
 
   const client = await pool.connect();
@@ -52,25 +84,66 @@ router.post('/', async (req, res) => {
       );
     }
 
-    // Insert passengers
-    for (let p of passengers) {
-      await client.query(
-        `INSERT INTO passengers 
-        (booking_id, title, first_name, last_name, age, type, seat_preference, meal_preference, baggage)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        [
-          booking.id,
-          p.title,
-          p.firstName,
-          p.lastName,
-          p.age,
-          p.type,
-          p.seatPreference,
-          p.mealPreference,
-          p.baggage
-        ]
-      );
-    }
+    // Insert passengers (tolerant to different field names)
+for (let p of passengers) {
+  await client.query(
+    `INSERT INTO passengers 
+      (booking_id, title, first_name, last_name, age, type, seat_preference, meal_preference, baggage)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [
+      booking.id,
+      p.title,
+      // accept either firstName or firstname
+      p.firstName || p.firstname || null,
+      // accept either lastName or lastname
+      p.lastName || p.lastname || null,
+      p.age,
+      p.type,
+      // accept either seatPreference or seat
+      p.seatPreference || p.seat || null,
+      // accept either mealPreference or meal
+      p.mealPreference || p.meal || null,
+      // if baggage is missing, send null instead of undefined
+      p.baggage ?? null
+    ]
+  );
+}
+
+/* ======================================
+   2) DECREMENT SEAT COUNTS PER BOOKING
+   ====================================== */
+
+const seatsToBook = Array.isArray(passengers) ? passengers.length : 0;
+
+if (seatsToBook > 0) {
+  // Normalize cabin_class to be more tolerant of frontend naming
+  const rawCabin = cabin_class || 'Economy';
+  const normalized = String(rawCabin).trim().toLowerCase();
+
+  const CABIN_COLUMN_MAP = {
+    // Economy
+    economy: 'TotalEconomySeats',
+    // Business
+    business: 'TotalBusinessSeats',
+    // First / First Class
+    first: 'TotalFirstClassSeats',
+    'first class': 'TotalFirstClassSeats'
+  };
+
+  const columnName = CABIN_COLUMN_MAP[normalized];
+
+  if (!columnName) {
+    throw new Error(`Unsupported cabin_class: ${rawCabin}`);
+  }
+
+  if (outbound_flight_id) {
+    await decrementSeatsForFlight(client, outbound_flight_id, columnName, seatsToBook);
+  }
+
+  if (return_flight_id) {
+    await decrementSeatsForFlight(client, return_flight_id, columnName, seatsToBook);
+  }
+}
 
     await client.query('COMMIT');
 

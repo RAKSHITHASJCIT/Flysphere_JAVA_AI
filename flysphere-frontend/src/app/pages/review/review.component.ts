@@ -34,49 +34,55 @@ export class ReviewComponent implements OnInit {
     this.totals = state.totals || {};
   }
 
-  confirmBooking() {
-    const isRound = this.bookingData?.tripType === 'round';
+ confirmBooking() {
+  const isRound = this.bookingData?.tripType === 'round';
 
-    const outboundFlightId = isRound
-      ? this.bookingData?.departure?.flight?.id
-      : this.bookingData?.flight?.id;
+  const outboundFlightId = isRound
+    ? this.bookingData?.departure?.flight?.id
+    : this.bookingData?.flight?.id;
 
-    const payload: any = {
-      user_id: 1, // TODO: replace with logged-in user id
-      outbound_flight_id: outboundFlightId,
-      passengers: this.passengers,
-      total_amount: this.totals?.grandTotal,
-      trip_type: this.bookingData?.tripType || (isRound ? 'round' : 'oneway')
-    };
+  // NEW: get selected cabin class from bookingData
+  // Adjust the property name to whatever you actually store
+  const selectedCabinClass =
+    this.bookingData?.selectedCabinClass || this.bookingData?.cabinClass || 'Economy';
 
-    if (isRound) {
-      payload.return_flight_id = this.bookingData?.return?.flight?.id;
-    }
+  const payload: any = {
+    user_id: 1, // TODO: replace with logged-in user id
+    outbound_flight_id: outboundFlightId,
+    passengers: this.passengers,
+    total_amount: this.totals?.grandTotal,
+    trip_type: this.bookingData?.tripType || (isRound ? 'round' : 'oneway'),
+    cabin_class: selectedCabinClass   // ✅ send correct cabin to backend
+  };
 
-    console.log('🚀 Sending booking payload:', payload);
-
-    this.http.post('http://localhost:5000/api/bookings', payload)
-      .subscribe({
-        next: (response: any) => {
-          console.log('✅ Booking API response:', response);
-
-          if (!response || !response.booking) {
-            alert('Booking succeeded but response format is unexpected.');
-            return;
-          }
-
-          // ✅ Navigate using route param (production-safe)
-          this.router.navigate([
-            '/confirmation',
-            response.booking.booking_id
-          ]);
-        },
-        error: (error) => {
-          console.error('❌ Booking API failed:', error);
-          alert('Booking failed. Please check backend server or try again.');
-        }
-      });
+  if (isRound) {
+    payload.return_flight_id = this.bookingData?.return?.flight?.id;
   }
+
+  console.log('🚀 Sending booking payload:', payload);
+
+  this.http.post('http://localhost:5000/api/bookings', payload)
+    .subscribe({
+      next: (response: any) => {
+        console.log('✅ Booking API response:', response);
+
+        if (!response || !response.booking) {
+          alert('Booking succeeded but response format is unexpected.');
+          return;
+        }
+
+        this.router.navigate([
+          '/confirmation',
+          response.booking.booking_id
+        ]);
+      },
+      error: (error) => {
+        console.error('❌ Booking API failed:', error);
+        alert('Booking failed. Please check backend server or try again.');
+      }
+    });
+}
+
 
   goBackToBooking() {
     this.router.navigate(['/booking'], {
