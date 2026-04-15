@@ -145,6 +145,35 @@ if (seatsToBook > 0) {
   }
 }
 
+    /* ======================================
+       2) DECREMENT SEAT COUNTS PER BOOKING
+       ====================================== */
+
+    const seatsToBook = Array.isArray(passengers) ? passengers.length : 0;
+
+    if (seatsToBook > 0) {
+      const CABIN_COLUMN_MAP = {
+        Economy: 'TotalEconomySeats',
+        Business: 'TotalBusinessSeats',
+        First: 'TotalFirstClassSeats'
+      };
+
+      const selectedCabin = cabin_class || 'Economy';
+      const columnName = CABIN_COLUMN_MAP[selectedCabin];
+
+      if (!columnName) {
+        throw new Error(`Unsupported cabin_class: ${selectedCabin}`);
+      }
+
+      if (outbound_flight_id) {
+        await decrementSeatsForFlight(client, outbound_flight_id, columnName, seatsToBook);
+      }
+
+      if (return_flight_id) {
+        await decrementSeatsForFlight(client, return_flight_id, columnName, seatsToBook);
+      }
+    }
+
     await client.query('COMMIT');
 
     res.status(201).json({
@@ -158,6 +187,20 @@ if (seatsToBook > 0) {
     res.status(500).json({ error: 'Booking failed' });
   } finally {
     client.release();
+  }
+});
+
+/* ✅ Get All Bookings (Admin Dashboard) */
+router.get('/', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM bookings ORDER BY created_at DESC`
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Fetch All Bookings Error:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 });
 
