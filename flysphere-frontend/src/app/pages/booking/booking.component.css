@@ -589,6 +589,28 @@
   justify-content: flex-end;
   margin-top: 20px;
 }
+.action-row {
+  display: flex;
+  justify-content: space-between; /* Back on left, Proceed on right */
+  align-items: center;
+  margin-top: 24px;
+}
+
+.back-btn {
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid #1f4fbf;      /* match your primary color */
+  background-color: #ffffff;
+  color: #1f4fbf;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.back-btn:hover {
+  background-color: #f5f7ff;
+}
+
 
 .continue-btn {
   width: 240px;

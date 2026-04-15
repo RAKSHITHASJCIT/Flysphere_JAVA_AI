@@ -371,11 +371,19 @@
       </div>
 
       <div class="action-row">
-        <button class="continue-btn"
-                (click)="confirmBooking()">
-          Proceed →
-        </button>
-      </div>
+  <button class="back-btn"
+          type="button"
+          (click)="goBackToSearch()">
+    ← Back to Search
+  </button>
+
+  <button class="continue-btn"
+          type="button"
+          (click)="confirmBooking()">
+    Proceed →
+  </button>
+</div>
+
 
     </div>
 

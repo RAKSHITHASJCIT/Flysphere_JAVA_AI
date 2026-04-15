@@ -6,7 +6,7 @@ import { BookingNavbarComponent } from '../../shared/booking-navbar/booking-navb
 
 @Component({
   selector: 'app-booking',
-  standalone: true,
+  standalone: true, 
   imports: [CommonModule, FormsModule, BookingNavbarComponent],
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.css']
@@ -36,43 +36,80 @@ export class BookingComponent implements OnInit, AfterViewInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    window.scrollTo(0, 0);
+  window.scrollTo(0, 0);
 
-    // ✅ Always hydrate booking data first
-    this.bookingData = history.state?.bookingData;
+  // ✅ Always hydrate booking data first
+  this.bookingData = history.state?.bookingData;
 
-    if (!this.bookingData) {
-      const stored = sessionStorage.getItem('bookingData');
-      if (stored) {
-        this.bookingData = JSON.parse(stored);
+  if (!this.bookingData) {
+    const stored = sessionStorage.getItem('bookingData');
+    if (stored) {
+      this.bookingData = JSON.parse(stored);
+    }
+  } else {
+    sessionStorage.setItem('bookingData', JSON.stringify(this.bookingData));
+  }
+
+  if (!this.bookingData) {
+    this.router.navigate(['/search']);
+    return;
+  }
+
+  // ✅ Restore passengers & contact if coming back from Review
+  const state = history.state;
+
+  if (state?.passengers && state.passengers.length > 0) {
+    this.passengers = state.passengers;
+  }
+
+  if (state?.contact) {
+    this.contact = state.contact;
+  }
+
+  // ✅ Initialize passengers based on counts from search page
+  Promise.resolve().then(() => {
+    if (this.passengers.length === 0) {
+      const adults = Number(this.bookingData?.adults) || 0;
+      const children = Number(this.bookingData?.children) || 0;
+
+      // create adult passengers
+      for (let i = 0; i < adults; i++) {
+        this.passengers.push({
+          title: '',
+          firstName: '',
+          lastName: '',
+          dob: '',
+          age: 0,
+          type: 'adult',
+          seatPreference: '',
+          baggage: false,
+          mealPreference: ''
+        });
       }
-    } else {
-      sessionStorage.setItem('bookingData', JSON.stringify(this.bookingData));
-    }
 
-    if (!this.bookingData) {
-      this.router.navigate(['/search']);
-      return;
-    }
+      // create child passengers
+      for (let i = 0; i < children; i++) {
+        this.passengers.push({
+          title: '',
+          firstName: '',
+          lastName: '',
+          dob: '',
+          age: 0,
+          type: 'child',  // ✅ pre-mark as child so fare block uses childFare
+          seatPreference: '',
+          baggage: false,
+          mealPreference: ''
+        });
+      }
 
-    // ✅ Restore passengers & contact if coming back from Review
-    const state = history.state;
-
-    if (state?.passengers && state.passengers.length > 0) {
-      this.passengers = state.passengers;
-    }
-
-    if (state?.contact) {
-      this.contact = state.contact;
-    }
-
-    // ✅ Ensure passenger initialization happens after data is fully ready
-    Promise.resolve().then(() => {
+      // fallback: if somehow counts are zero, keep original behavior
       if (this.passengers.length === 0) {
         this.addPassenger();
       }
-    });
-  }
+    }
+  });
+}
+
 
   /* ================= PASSENGER ================= */
 
@@ -359,8 +396,13 @@ export class BookingComponent implements OnInit, AfterViewInit {
       document.documentElement.style.overflow = 'auto';
       document.body.style.overflow = 'auto';
     }, 0);
-  }
 
+      
+
+  }
+goBackToSearch(): void {
+    this.router.navigate(['/search']);
+  }
   confirmBooking() {
 
     // Safety: if passenger details are not entered as per selection, show popup
