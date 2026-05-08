@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-navbar',
@@ -22,25 +23,33 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
-export class Navbar {
+export class Navbar implements OnInit {
 
   adminName: string = '';
   adminEmail: string = '';
 
-  constructor(private router: Router) {
-    this.loadUserFromToken();
+  constructor(
+    private router: Router,
+    private auth: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadUserProfile();
   }
 
-  loadUserFromToken() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.adminEmail = payload.email;
-        this.adminName = payload.role === 'ADMIN' ? 'Admin User' : 'User';
-      } catch (error) {
-        console.error('Invalid token format');
-      }
+  loadUserProfile() {
+
+    // ✅ Read user directly from localStorage (no JWT yet)
+    const storedUser = localStorage.getItem('user');
+
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      this.adminEmail = user.email || '';
+      this.adminName = user.role === 'ADMIN'
+        ? 'Admin User'
+        : user.email || 'User';
+    } else {
+      console.warn('No user found in localStorage');
     }
   }
 

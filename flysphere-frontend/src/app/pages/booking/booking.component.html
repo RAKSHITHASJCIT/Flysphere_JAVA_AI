@@ -17,7 +17,7 @@
         <ng-container *ngIf="bookingData?.tripType === 'round'; else oneWayHeader">
 
           <div class="flight-block">
-            <div class="flight-title">✈ Departure</div>
+            <div class="flight-title">✈ Outbound</div>
             <div class="flight-main">
               {{ bookingData?.departure?.flight?.airline }}
               ({{ bookingData?.departure?.flight?.flightno }})
@@ -25,6 +25,18 @@
             <div class="flight-sub">
               {{ bookingData?.departure?.flight?.flighttype }} •
               {{ bookingData?.departure?.fare?.name }}
+            </div>
+            <div class="flight-sub">
+              Departure:
+              {{ bookingData?.departure?.flight?.departCity }}
+              • {{ bookingData?.departure?.flight?.departTime }}
+              • {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
+            </div>
+            <div class="flight-sub">
+              Arrival:
+              {{ bookingData?.departure?.flight?.arriveCity }}
+              • {{ bookingData?.departure?.flight?.arriveTime }}
+              • {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
             </div>
           </div>
 
@@ -37,6 +49,18 @@
             <div class="flight-sub">
               {{ bookingData?.return?.flight?.flighttype }} •
               {{ bookingData?.return?.fare?.name }}
+            </div>
+            <div class="flight-sub">
+              Departure:
+              {{ bookingData?.return?.flight?.departCity }}
+              • {{ bookingData?.return?.flight?.departTime }}
+              • {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
+            </div>
+            <div class="flight-sub">
+              Arrival:
+              {{ bookingData?.return?.flight?.arriveCity }}
+              • {{ bookingData?.return?.flight?.arriveTime }}
+              • {{ bookingData?.returnDate | date:'EEE, dd MMM yyyy' }}
             </div>
           </div>
 
@@ -54,6 +78,18 @@
               {{ bookingData?.flight?.flighttype }} •
               {{ bookingData?.fare?.name }}
             </div>
+            <div class="flight-sub">
+              Departure:
+              {{ bookingData?.flight?.departCity }}
+              • {{ bookingData?.flight?.departTime }}
+              • {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
+            </div>
+            <div class="flight-sub">
+              Arrival:
+              {{ bookingData?.flight?.arriveCity }}
+              • {{ bookingData?.flight?.arriveTime }}
+              • {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
+            </div>
           </div>
         </ng-template>
 
@@ -67,7 +103,9 @@
             </div>
 
             <div class="row">
-              <span>Departure Fare</span>
+              <span>
+                {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }} Fare
+              </span>
               <span>
                 ₹ {{
                   bookingData?.tripType === 'round'
@@ -92,15 +130,75 @@
               </span>
             </div>
 
-            <div class="row">
-              <span>Add-ons</span>
+            <!-- ✅ DEPARTURE ADD-ONS SUMMARY -->
+            <div *ngIf="p.departureSeat || p.departureMeal || p.departureBaggage"
+                 class="row"
+                 style="font-weight:600; color:#1e293b;">
               <span>
-                ₹ {{
-                  getSeatPrice(p.seatPreference) +
-                  getMealPrice(p.mealPreference) +
-                  (p.baggage ? baggagePrice : 0)
-                }}
+                {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }} Add‑Ons
               </span>
+              <span></span>
+            </div>
+
+            <div class="row" *ngIf="p.departureSeat">
+              <span>
+                Seat ({{ p.departureSeat | titlecase }})
+              </span>
+              <span>₹ {{ getSeatPrice(p.departureSeat) }}</span>
+            </div>
+
+            <div class="row" *ngIf="p.departureMeal">
+              <span>
+                Meal ({{ p.departureMeal | titlecase }})
+              </span>
+              <span>₹ {{ getMealPrice(p.departureMeal) }}</span>
+            </div>
+
+            <div class="row" *ngIf="p.departureBaggage">
+              <span>Extra Baggage (10kg)</span>
+              <span>₹ {{ baggagePrice }}</span>
+            </div>
+
+            <!-- ✅ RETURN ADD-ONS SUMMARY -->
+            <div *ngIf="bookingData?.tripType === 'round' &&
+                        (p.returnSeat || p.returnMeal || p.returnBaggage)"
+                 class="row"
+                 style="font-weight:600; color:#1e293b; margin-top:6px;">
+              <span>Return Add‑Ons</span>
+              <span></span>
+            </div>
+
+            <div class="row" *ngIf="bookingData?.tripType === 'round' && p.returnSeat">
+              <span>
+                Seat ({{ p.returnSeat | titlecase }})
+              </span>
+              <span>₹ {{ getSeatPrice(p.returnSeat) }}</span>
+            </div>
+
+            <div class="row" *ngIf="bookingData?.tripType === 'round' && p.returnMeal">
+              <span>
+                Meal ({{ p.returnMeal | titlecase }})
+              </span>
+              <span>₹ {{ getMealPrice(p.returnMeal) }}</span>
+            </div>
+
+            <div class="row" *ngIf="bookingData?.tripType === 'round' && p.returnBaggage">
+              <span>Extra Baggage (10kg)</span>
+              <span>₹ {{ baggagePrice }}</span>
+            </div>
+
+            <!-- ✅ Premium Travel Protection (Departure / Return) -->
+            <div class="row" *ngIf="p.departureInsurance">
+              <span>
+                {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }} Travel Protection
+              </span>
+              <span>₹ 299</span>
+            </div>
+
+            <div class="row"
+                 *ngIf="bookingData?.tripType === 'round' && p.returnInsurance">
+              <span>Return Travel Protection</span>
+              <span>₹ 199</span>
             </div>
 
             <div class="row subtotal">
@@ -215,93 +313,249 @@
           </div>
         </div>
 
-        <!-- ✅ ADD-ONS PER PASSENGER -->
+        <!-- ✅ ADD-ONS PER PASSENGER (ALIGNED BY SEGMENT) -->
         <div class="addons-section">
 
-          <div class="premium-options-section two-column-options">
+          <!-- ================= DEPARTURE SECTION ================= -->
+          <div class="addon-block">
+<div class="addon-block-title">
+  ✈ {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }} Add‑Ons
+</div>
 
-            <!-- ✅ Compact Segmented Seat Selector -->
-            <div class="premium-option-group">
-              <div class="section-label">🎟 Seat Preference</div>
-              <div class="segmented-control">
-                <button type="button"
-                        [class.active]="passenger.seatPreference === ''"
-                        (click)="passenger.seatPreference = ''">
-                  No Seat
-                </button>
+            <div class="premium-options-section two-column-options">
 
-                <button type="button"
-                        [class.active]="passenger.seatPreference === 'middle'"
-                        (click)="passenger.seatPreference = 'middle'">
-                  Middle · ₹299
-                </button>
+              <!-- Seat -->
+              <div class="premium-option-group">
+                <div class="section-label">🎟 Seat Preference</div>
+<div class="segmented-control">
+                  <button type="button"
+                          [class.active]="!passenger.departureSeat"
+                          (click)="passenger.departureSeat = null">
+* No preference
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureSeat === 'middle'"
+                          (click)="passenger.departureSeat = 'middle'">
+                    Middle · ₹299
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureSeat === 'aisle'"
+                          (click)="passenger.departureSeat = 'aisle'">
+                    Aisle · ₹399
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureSeat === 'window'"
+                          (click)="passenger.departureSeat = 'window'">
+                    Window · ₹499
+                  </button>
+                </div>
+              </div>
 
-                <button type="button"
-                        [class.active]="passenger.seatPreference === 'aisle'"
-                        (click)="passenger.seatPreference = 'aisle'">
-                  Aisle · ₹399
-                </button>
+              <!-- Meal -->
+              <div class="premium-option-group">
+                <div class="section-label">🍽 Meal Preference</div>
+<div class="segmented-control">
+                  <button type="button"
+                          [class.active]="!passenger.departureMeal"
+                          (click)="passenger.departureMeal = null">
+                    No Meal
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureMeal === 'veg'"
+                          (click)="passenger.departureMeal = 'veg'">
+                    Veg · ₹199
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureMeal === 'jain'"
+                          (click)="passenger.departureMeal = 'jain'">
+                    Jain · ₹249
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.departureMeal === 'nonveg'"
+                          (click)="passenger.departureMeal = 'nonveg'">
+                    Non‑Veg · ₹299
+                  </button>
+                </div>
+              </div>
 
-                <button type="button"
-                        [class.active]="passenger.seatPreference === 'window'"
-                        (click)="passenger.seatPreference = 'window'">
-                  Window · ₹499
-                </button>
+            </div>
+
+            <!-- Departure Baggage -->
+            <div class="luxury-addon-card" [class.active]="passenger.departureBaggage">
+              <div class="addon-content">
+                <div class="addon-header">
+<div class="addon-title">
+  🧳 {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }} – Extra Baggage (Up to 10 kg)
+</div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="passenger.departureBaggage">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div class="addon-features">
+                  <span>+10 kg Checked Baggage</span>
+                  <span>Priority Handling</span>
+                  <span>Secure Tagging</span>
+                </div>
+
+                <div class="addon-price">
+                  ₹ {{ baggagePrice }} <small>per passenger</small>
+                </div>
               </div>
             </div>
 
-            <!-- ✅ Compact Segmented Meal Selector -->
-            <div class="premium-option-group">
-              <div class="section-label">🍽 Meal Preference</div>
-              <div class="segmented-control">
-                <button type="button"
-                        [class.active]="passenger.mealPreference === ''"
-                        (click)="passenger.mealPreference = ''">
-                  No Meal
-                </button>
-
-                <button type="button"
-                        [class.active]="passenger.mealPreference === 'veg'"
-                        (click)="passenger.mealPreference = 'veg'">
-                  Veg · ₹199
-                </button>
-
-                <button type="button"
-                        [class.active]="passenger.mealPreference === 'jain'"
-                        (click)="passenger.mealPreference = 'jain'">
-                  Jain · ₹249
-                </button>
-
-                <button type="button"
-                        [class.active]="passenger.mealPreference === 'nonveg'"
-                        (click)="passenger.mealPreference = 'nonveg'">
-                  Non‑Veg · ₹299
-                </button>
-              </div>
-            </div>
 
           </div>
 
-          <!-- ✅ Luxury Extra Baggage Card -->
-          <div class="luxury-addon-card" [class.active]="passenger.baggage">
+
+          <!-- ================= RETURN SECTION ================= -->
+          <div class="addon-block"
+               *ngIf="bookingData?.tripType === 'round'">
+            <div class="addon-block-title">
+              🔁 Return Add‑Ons
+            </div>
+
+            <div class="premium-options-section two-column-options">
+
+              <!-- Return Seat -->
+              <div class="premium-option-group">
+                <div class="section-label">🎟 Seat Preference</div>
+<div class="segmented-control">
+                  <button type="button"
+                          [class.active]="!passenger.returnSeat"
+                          (click)="passenger.returnSeat = null">
+                    * No preference
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnSeat === 'middle'"
+                          (click)="passenger.returnSeat = 'middle'">
+                    Middle · ₹299
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnSeat === 'aisle'"
+                          (click)="passenger.returnSeat = 'aisle'">
+                    Aisle · ₹399
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnSeat === 'window'"
+                          (click)="passenger.returnSeat = 'window'">
+                    Window · ₹499
+                  </button>
+                </div>
+              </div>
+
+              <!-- Return Meal -->
+              <div class="premium-option-group">
+                <div class="section-label">🍽 Meal Preference</div>
+<div class="segmented-control">
+                  <button type="button"
+                          [class.active]="!passenger.returnMeal"
+                          (click)="passenger.returnMeal = null">
+                    No Meal
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnMeal === 'veg'"
+                          (click)="passenger.returnMeal = 'veg'">
+                    Veg · ₹199
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnMeal === 'jain'"
+                          (click)="passenger.returnMeal = 'jain'">
+                    Jain · ₹249
+                  </button>
+                  <button type="button"
+                          [class.active]="passenger.returnMeal === 'nonveg'"
+                          (click)="passenger.returnMeal = 'nonveg'">
+                    Non‑Veg · ₹299
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Return Baggage -->
+            <div class="luxury-addon-card"
+                 [class.active]="passenger.returnBaggage">
+              <div class="addon-content">
+                <div class="addon-header">
+                  <div class="addon-title">🧳 Return – Extra Baggage (Up to 10 kg)</div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="passenger.returnBaggage">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div class="addon-features">
+                  <span>+10 kg Checked Baggage</span>
+                  <span>Priority Handling</span>
+                  <span>Secure Tagging</span>
+                </div>
+
+                <div class="addon-price">
+                  ₹ {{ baggagePrice }} <small>per passenger</small>
+                </div>
+              </div>
+            </div>
+
+<!-- ✅ Return Insurance merged into combined tile above -->
+
+          </div>
+
+          <!-- ✅ Combined Travel Protection Tile (Moved Below Return Section) -->
+          <div class="luxury-addon-card insurance-card"
+               [class.active]="passengers?.some(p => p.departureInsurance || p.returnInsurance)"
+               style="margin-top:20px;">
+
             <div class="addon-content">
+
               <div class="addon-header">
-<div class="addon-title">🧳 Extra Baggage – Up to 10 kg</div>
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="passenger.baggage">
-                  <span class="slider"></span>
-                </label>
+                <div class="addon-title">🛡 Travel Protection (All Passengers)</div>
+                <div style="font-weight:600;">
+                  ₹ {{
+                    (passenger.departureInsurance ? outboundProtectionPrice : 0) +
+                    (passenger.returnInsurance ? returnProtectionPrice : 0) -
+                    (passenger.departureInsurance && passenger.returnInsurance ? bundleDiscount : 0)
+                  }}
+                </div>
               </div>
 
               <div class="addon-features">
-<span>+10 kg Checked Baggage</span>
-                <span>Priority Handling</span>
-                <span>Secure Tagging</span>
+                <span>Medical Cover</span>
+                <span>Trip Cancellation</span>
+                <span>Lost Baggage Cover</span>
+                <span>24×7 Assistance</span>
               </div>
 
-              <div class="addon-price">
-                ₹ {{ baggagePrice }} <small>per passenger</small>
+              <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>
+                    {{ bookingData?.tripType === 'round' ? 'Outbound' : 'Depature' }}
+                    Protection – ₹299 per passenger
+                  </span>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="passenger.departureInsurance">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div *ngIf="bookingData?.tripType === 'round'"
+                     style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Return Protection – ₹199 per passenger</span>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="passenger.returnInsurance">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div *ngIf="passenger.departureInsurance && passenger.returnInsurance"
+                     style="color:#16a34a; font-weight:600; font-size:13px;">
+                  ✅ Bundle Discount Applied
+                </div>
+
               </div>
+
             </div>
           </div>
 
@@ -316,29 +570,6 @@
         + Add Passenger
       </button>
 
-      <!-- ✅ Luxury Travel Protection Card -->
-      <div class="luxury-addon-card insurance-card" [class.active]="travelInsurance">
-        <div class="addon-content">
-          <div class="addon-header">
-            <div class="addon-title">🛡 Premium Travel Protection</div>
-            <label class="switch">
-              <input type="checkbox" [(ngModel)]="travelInsurance">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="addon-features">
-            <span>Medical Cover up to ₹3,00,000</span>
-            <span>Trip Cancellation Protection</span>
-            <span>Lost Baggage Coverage</span>
-            <span>24×7 Assistance Support</span>
-          </div>
-
-          <div class="addon-price">
-            ₹ {{ insurancePrice }} <small>per passenger</small>
-          </div>
-        </div>
-      </div>
 
       <!-- ✅ Contact -->
       <div class="passenger-card">

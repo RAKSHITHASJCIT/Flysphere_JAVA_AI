@@ -1,95 +1,121 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { BookingNavbarComponent } from '../../shared/booking-navbar/booking-navbar.component';
 
 @Component({
   selector: 'app-confirmation',
   standalone: true,
-  imports: [CommonModule, BookingNavbarComponent],
+  imports: [CommonModule, HttpClientModule, BookingNavbarComponent],
   templateUrl: './confirmation.component.html',
   styleUrls: ['./confirmation.component.css']
 })
 export class ConfirmationComponent implements OnInit {
+
+  // ✅ Dropdown state (closed by default)
+  showOutboundAddOns = false;
+  showReturnAddOns = false;
+
+  toggleOutbound() {
+    this.showOutboundAddOns = !this.showOutboundAddOns;
+  }
+
+  toggleReturn() {
+    this.showReturnAddOns = !this.showReturnAddOns;
+  }
+
   bookingData: any;
   bookingId: string = '';
+  fromMyBookings: boolean = false;
+  isCancelled: boolean = false;
 
   passengers: any[] = [];
   totals: any;
-
-  tripType?: string;
-  outboundFlight: any;
-  returnFlight: any | null = null;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private http: HttpClient,
-    private cdr: ChangeDetectorRef   // ✅ add this
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    console.log('✅ Confirmation component loaded');
+
+    // ✅ Detect navigation source
+    this.fromMyBookings = sessionStorage.getItem('fromMyBookings') === 'true';
+    
+    // ✅ Clear flag immediately so it doesn't affect future navigations
+    sessionStorage.removeItem('fromMyBookings');
+
     const bookingIdParam = this.route.snapshot.paramMap.get('bookingId');
-    console.log('✅ bookingId from route:', bookingIdParam);
 
     if (!bookingIdParam) {
-      console.warn('No bookingId param, redirecting to /search');
       this.router.navigate(['/search']);
       return;
     }
 
     this.bookingId = bookingIdParam;
 
-    const url = `http://localhost:5000/api/bookings/${this.bookingId}`;
-    console.log('✅ Fetching booking from:', url);
+    this.http.get(`http://localhost:5000/api/bookings/${this.bookingId}`)
+      .subscribe({
+        next: (response: any) => {
 
-    this.http.get<any>(url).subscribe({
-      next: (response) => {
-        console.log('✅ Booking API response:', response);
+          this.bookingData = response;
+          this.passengers = response.passengers || [];
+          this.totals = { grandTotal: response.totalAmount };
 
-        if (!response || response.success !== true || !response.booking) {
-          console.warn('Unexpected response or success!=true, redirecting');
-          this.router.navigate(['/search']);
-          return;
+          // ✅ Detect cancelled status
+          this.isCancelled = response.status === 'CANCELLED';
+
+          // Force change detection to avoid blank render
+          this.cdr.detectChanges();
+
+        },
+        error: (err) => {
+          console.error('Failed to load booking', err);
+          // Temporarily prevent redirect to debug the issue
+          alert('Failed to load booking. Check backend response.');
         }
+      });
+  }
 
-        const b = response.booking;
+  downloadTicket() {
+    if (!this.bookingData?.bookingId) return;
 
-        this.bookingData = b;
-        this.passengers = response.passengers || [];
-        this.totals = { grandTotal: b.total_amount };
-
-        this.tripType = b.trip_type;
-        this.outboundFlight = b.outbound_flight;
-        this.returnFlight = b.return_flight || null;
-
-        console.log('✅ bookingData set in component:', this.bookingData);
-        console.log('✅ passengers set in component:', this.passengers);
-        console.log('✅ totals set in component:', this.totals);
-        console.log('✅ outboundFlight:', this.outboundFlight);
-        console.log('✅ returnFlight:', this.returnFlight);
-
-        // ✅ Force Angular to update the view now that data is set
-        this.cdr.detectChanges();
+    this.http.get(
+      `http://localhost:5000/api/tickets/${this.bookingData.bookingId}/pdf`,
+      { responseType: 'blob' }
+    ).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.bookingData.bookingId}_Eticket.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
       },
       error: (err) => {
-        console.error('Booking fetch error', err);
-        this.router.navigate(['/search']);
+        console.error('PDF download failed', err);
+        alert('Failed to download E‑Ticket.');
       }
     });
   }
 
-  printTicket() { window.print(); }
-
-  downloadTicket() {
-    if (!this.bookingData?.id) return;
-    window.open(
-      `http://localhost:5000/api/bookings/${this.bookingData.id}/ticket`,
-      '_blank'
-    );
+  goHome() {
+    this.router.navigate(['/search']);
   }
 
-  goHome() { this.router.navigate(['/search']); }
+  goBackToMyBookings() {
+    this.router.navigate(['/my-bookings']);
+  }
+
+  // ✅ Copy to clipboard utility
+  copyToClipboard(value: string | undefined) {
+    if (!value) return;
+
+    navigator.clipboard.writeText(value).then(() => {
+      console.log('Copied to clipboard');
+    });
+  }
 }

@@ -120,54 +120,20 @@ export class FlightsList implements OnInit, OnDestroy {
       });
   }
 
-  // Cancel flight: fetch full record, set FlightStatus to 'Cancelled' and update via PUT
+  // ✅ Cancel flight using PATCH endpoint (no full update)
   cancelFlight(id: number) {
     if (!confirm('Are you sure you want to cancel this flight?')) return;
 
-    this.http.get<any>(`http://localhost:5000/api/flights/${id}`)
+    this.http.patch(`http://localhost:5000/api/flights/${id}/cancel`, {})
       .subscribe({
-        next: (flight) => {
-          // Build payload with server-expected keys (PascalCase) to avoid mismatched field names.
-          const payload: any = {
-            AirlineName: flight.AirlineName || flight.airlinename,
-            FlightType: flight.FlightType || flight.flighttype,
-            FlightNo: flight.FlightNo || flight.flightno,
-            DepartureAirport: flight.DepartureAirport || flight.departureairport,
-            ArrivalAirport: flight.ArrivalAirport || flight.arrivalairport,
-            DepartureDate: flight.DepartureDate || flight.departuredate,
-            ArrivalDate: flight.ArrivalDate || flight.arrivaldate,
-            DepartureTime: flight.DepartureTime || flight.departuretime,
-            ArrivalTime: flight.ArrivalTime || flight.arrivaltime,
-            TotalEconomySeats: flight.TotalEconomySeats || flight.totaleconomyseats,
-            TotalBusinessSeats: flight.TotalBusinessSeats || flight.totalbusinessseats,
-            TotalFirstClassSeats: flight.TotalFirstClassSeats || flight.totalfirstclassseats,
-            EconomyAdultFare: flight.EconomyAdultFare || flight.economyadultfare,
-            EconomyChildFare: flight.EconomyChildFare || flight.economychildfare,
-            BusinessAdultFare: flight.BusinessAdultFare || flight.businessadultfare,
-            BusinessChildFare: flight.BusinessChildFare || flight.businesschildfare,
-            FirstAdultFare: flight.FirstAdultFare || flight.firstadultfare,
-            FirstChildFare: flight.FirstChildFare || flight.firstchildfare,
-            FlightStatus: 'Cancelled'
-          };
-
-          this.http.put(`http://localhost:5000/api/flights/${id}`, payload)
-            .subscribe({
-              next: () => {
-                this.snackBar.open('Flight cancelled', 'Close', { duration: 2500 });
-                // refresh list
-                this.loadFlights();
-                // navigate to admin dashboard so counts update correctly
-                this.router.navigate(['/admin/dashboard'], { replaceUrl: true });
-              },
-              error: (err) => {
-                console.error('Cancel failed', err);
-                this.snackBar.open('Failed to cancel flight', 'Close', { duration: 3000 });
-              }
-            });
+        next: () => {
+          this.snackBar.open('Flight cancelled successfully', 'Close', { duration: 2500 });
+          this.loadFlights();
+          this.router.navigate(['/admin/dashboard'], { replaceUrl: true });
         },
         error: (err) => {
-          console.error('Fetch flight failed', err);
-          this.snackBar.open('Failed to fetch flight details', 'Close', { duration: 3000 });
+          console.error('Cancel failed', err);
+          this.snackBar.open('Failed to cancel flight', 'Close', { duration: 3000 });
         }
       });
   }
@@ -186,23 +152,38 @@ export class FlightsList implements OnInit, OnDestroy {
           this.allFlights = [];
         }
 
-        const newFlights = [...this.allFlights];
+        // ✅ Normalize backend camelCase response to lowercase keys expected by UI
+        const newFlights = this.allFlights.map(f => ({
+          ...f,
+          flightid: f.flightid ?? f.flightId ?? f.id,
+          flightno: f.flightno ?? f.flightNo,
+          airlinename: f.airlinename ?? f.airlineName,
+          departureairport: f.departureairport ?? f.departureAirport,
+          arrivalairport: f.arrivalairport ?? f.arrivalAirport,
+          departuredate: f.departuredate ?? f.departureDate,
+          arrivaldate: f.arrivaldate ?? f.arrivalDate,
+          departuretime: f.departuretime ?? f.departureTime,
+          arrivaltime: f.arrivaltime ?? f.arrivalTime,
+          flighttype: f.flighttype ?? f.flightType,
+          flightstatus: f.flightstatus ?? f.flightStatus ?? 'Scheduled',
+          totaleconomyseats: f.totaleconomyseats ?? f.totalEconomySeats,
+          totalbusinessseats: f.totalbusinessseats ?? f.totalBusinessSeats,
+          totalfirstclassseats: f.totalfirstclassseats ?? f.totalFirstClassSeats,
+          economyadultfare: f.economyadultfare ?? f.economyAdultFare ?? 0,
+          economychildfare: f.economychildfare ?? f.economyChildFare ?? 0,
+          businessadultfare: f.businessadultfare ?? f.businessAdultFare ?? 0,
+          businesschildfare: f.businesschildfare ?? f.businessChildFare ?? 0,
+          firstadultfare: f.firstadultfare ?? f.firstAdultFare ?? 0,
+          firstchildfare: f.firstchildfare ?? f.firstChildFare ?? 0
+        }));
 
-        // ✅ Refresh only if status changed
-        let statusChanged = false;
-
+        // ✅ Track status changes
         newFlights.forEach(f => {
-          const id = f.flightid || f.FlightId;
-          const status = f.flightstatus || f.FlightStatus;
-
-          if (this.previousStatusMap[id] && this.previousStatusMap[id] !== status) {
-            statusChanged = true;
-          }
-
+          const id = f.flightid;
+          const status = f.flightstatus;
           this.previousStatusMap[id] = status;
         });
 
-        // ✅ Always reapply filters after refresh (remove conditional refresh logic)
         this.allFlights = newFlights;
         this.filteredFlights = [...this.allFlights];
         this.applySearch(); // ✅ Always reapply filters after refresh

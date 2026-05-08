@@ -591,12 +591,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.http.get<any[]>('http://localhost:5000/api/flights')
       .subscribe(data => {
 
-        this.total = data.length;
+        // ✅ Normalize camelCase response like flights-list
+        const flights = data.map(f => ({
+          ...f,
+          flightstatus: f.flightstatus ?? f.flightStatus,
+          arrivaldate: f.arrivaldate ?? f.arrivalDate,
+          arrivaltime: f.arrivaltime ?? f.arrivalTime,
+          departuredate: f.departuredate ?? f.departureDate,
+          departuretime: f.departuretime ?? f.departureTime,
+          flighttype: f.flighttype ?? f.flightType,
+          flightno: f.flightno ?? f.flightNo,
+          departureairport: f.departureairport ?? f.departureAirport,
+          arrivalairport: f.arrivalairport ?? f.arrivalAirport
+        }));
+
+        this.total = flights.length;
 
         const now = new Date();
 
         // ✅ Completed = Arrival date & time are in the past
-        this.completed = data.filter(f => {
+        this.completed = flights.filter(f => {
           if (f.flightstatus === 'Cancelled') return false;
           if (!f.arrivaldate || !f.arrivaltime) return false;
 
@@ -608,10 +622,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           return arrivalDate < now;
         }).length;
 
-        this.cancelled = data.filter(f => f.flightstatus === 'Cancelled').length;
+        this.cancelled = flights.filter(f => f.flightstatus === 'Cancelled').length;
 
         // ✅ Upcoming = Flights whose arrival date & time are in present or future
-        const upcoming = data.filter(f => {
+        const upcoming = flights.filter(f => {
           if (f.flightstatus === 'Cancelled') return false;
           if (!f.arrivaldate || !f.arrivaltime) return false;
 
@@ -628,35 +642,33 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
         this.active = upcoming.length;
 
-        // ✅ Calculate Airbus & Boeing flights per month
-        const airbusMonthly = new Array(12).fill(0);
-        const boeingMonthly = new Array(12).fill(0);
+        // ✅ Calculate monthly flights (based on normalized flights array)
+        const monthly = new Array(12).fill(0);
 
-        data.forEach(f => {
+        flights.forEach(f => {
+          if (!f.departuredate) return;
           const dep = new Date(f.departuredate);
           const month = dep.getMonth();
-          if (isNaN(month)) return;
-
-          if (f.flighttype.includes('Airbus')) {
-            airbusMonthly[month]++;
-          }
-          if (f.flighttype.includes('Boeing')) {
-            boeingMonthly[month]++;
+          if (!isNaN(month)) {
+            monthly[month]++;
           }
         });
 
-        this.monthlyDataAirbus = airbusMonthly;
-        this.monthlyDataBoeing = boeingMonthly;
+        this.monthlyDataAirbus = monthly;
+        this.monthlyDataBoeing = new Array(12).fill(0);
         this.updateChart();
 
         const currentMonth = new Date().getMonth();
-        this.monthWise = airbusMonthly[currentMonth] + boeingMonthly[currentMonth];
+        this.monthWise = monthly[currentMonth];
 
-        const airbus = data.filter(f => f.flighttype.includes('Airbus'));
-        const boeing = data.filter(f => f.flighttype.includes('Boeing'));
+        // ✅ Simple aircraft counters based on flightType text
+        this.airbusCount = flights.filter(f =>
+          (f.flighttype || '').toLowerCase().includes('airbus')
+        ).length;
 
-        this.airbusCount = airbus.length;
-        this.boeingCount = boeing.length;
+        this.boeingCount = flights.filter(f =>
+          (f.flighttype || '').toLowerCase().includes('boeing')
+        ).length;
 
         // ✅ Get seat availability dynamically (from first matching flight)
         // ✅ Fixed Seat Configuration (Independent of flights data)

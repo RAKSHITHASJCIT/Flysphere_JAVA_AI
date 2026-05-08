@@ -22,7 +22,40 @@ export class BookingComponent implements OnInit, AfterViewInit {
   baggagePrice = 799;
   insurancePrice = 199;
 
-  travelInsurance = false;
+  // ✅ Separate travel insurance per segment
+  departureInsurance = false;
+  returnInsurance = false;
+
+  // ✅ Travel Protection Pricing
+  outboundProtectionPrice = 299;
+  returnProtectionPrice = 199;
+  bundleDiscount = 50; // flat discount when both selected
+
+  // ✅ Combined Protection Total (per passenger with bundle discount)
+  getCombinedProtectionTotal(): number {
+    let total = 0;
+
+    this.passengers.forEach(p => {
+      let passengerTotal = 0;
+
+      if (p.departureInsurance) {
+        passengerTotal += this.outboundProtectionPrice;
+      }
+
+      if (p.returnInsurance) {
+        passengerTotal += this.returnProtectionPrice;
+      }
+
+      // ✅ Bundle discount per passenger
+      if (p.departureInsurance && p.returnInsurance) {
+        passengerTotal -= this.bundleDiscount;
+      }
+
+      total += passengerTotal;
+    });
+
+    return total;
+  }
 
   contact = {
     email: '',
@@ -246,16 +279,26 @@ export class BookingComponent implements OnInit, AfterViewInit {
     let total = 0;
 
     this.passengers.forEach(p => {
-      total += this.getSeatPrice(p.seatPreference);
-      total += this.getMealPrice(p.mealPreference);
-      if (p.baggage) total += this.baggagePrice;
+
+      // ✅ Departure add-ons
+      total += this.getSeatPrice(p.departureSeat);
+      total += this.getMealPrice(p.departureMeal);
+      if (p.departureBaggage) total += this.baggagePrice;
+
+      // ✅ Return add-ons (only for round trip)
+      if (this.bookingData?.tripType === 'round') {
+        total += this.getSeatPrice(p.returnSeat);
+        total += this.getMealPrice(p.returnMeal);
+        if (p.returnBaggage) total += this.baggagePrice;
+      }
     });
 
-    if (this.travelInsurance) {
-      total += this.insurancePrice * this.passengers.length;
-    }
-
     return Math.round(total);
+  }
+
+  // ✅ Travel Protection total (per passenger)
+  get insuranceTotal(): number {
+    return this.getCombinedProtectionTotal();
   }
 
   /* ✅ Per Passenger Subtotal (Fix for string concatenation issue) */
@@ -285,16 +328,42 @@ export class BookingComponent implements OnInit, AfterViewInit {
       fareTotal = p.type === 'adult' ? adultFare : childFare;
     }
 
-    const addons =
-      this.getSeatPrice(p.seatPreference) +
-      this.getMealPrice(p.mealPreference) +
-      (p.baggage ? this.baggagePrice : 0);
+    let addons = 0;
 
-    return Math.round(fareTotal + addons);
+    // ✅ Departure add-ons
+    addons += this.getSeatPrice(p.departureSeat);
+    addons += this.getMealPrice(p.departureMeal);
+    if (p.departureBaggage) addons += this.baggagePrice;
+
+    // ✅ Return add-ons (only for round trip)
+    if (this.bookingData?.tripType === 'round') {
+      addons += this.getSeatPrice(p.returnSeat);
+      addons += this.getMealPrice(p.returnMeal);
+      if (p.returnBaggage) addons += this.baggagePrice;
+    }
+
+    let insurance = 0;
+
+    if (p.departureInsurance) {
+      insurance += this.outboundProtectionPrice;
+    }
+
+    if (p.returnInsurance) {
+      insurance += this.returnProtectionPrice;
+    }
+
+    // ✅ Bundle discount per passenger
+    if (p.departureInsurance && p.returnInsurance) {
+      insurance -= this.bundleDiscount;
+    }
+
+    return Math.round(fareTotal + addons + insurance);
   }
 
   get taxAmount(): number {
-    return Math.round((this.baseTotal + this.addonsTotal) * 0.12);
+    return Math.round(
+      (this.baseTotal + this.addonsTotal + this.insuranceTotal) * 0.12
+    );
   }
 
   get convenienceFee(): number {
@@ -305,6 +374,7 @@ export class BookingComponent implements OnInit, AfterViewInit {
     return Math.round(
       this.baseTotal +
       this.addonsTotal +
+      this.insuranceTotal +
       this.taxAmount +
       this.convenienceFee
     );
@@ -405,21 +475,26 @@ goBackToSearch(): void {
   }
   confirmBooking() {
 
-    // Safety: if passenger details are not entered as per selection, show popup
-    if (this.passengers.length !== this.totalFromSearch) {
-      alert('Please enter passenger details');
-      return;
-    }
-
-    // If other fields (names, DOB, contact etc.) are invalid, use existing validation flow
+    // ✅ Rely fully on validation instead of strict length check
     if (!this.validateBooking()) {
       return;
     }
 
+    // ✅ Normalize add-on fields to match backend Passenger entity
+    const normalizedPassengers = this.passengers.map(p => ({
+      ...p,
+      outboundSeat: p.departureSeat || null,
+      outboundMeal: p.departureMeal || null,
+      returnSeat: p.returnSeat || null,
+      returnMeal: p.returnMeal || null,
+      departureBaggage: !!p.departureBaggage,
+      returnBaggage: !!p.returnBaggage
+    }));
+
     this.router.navigate(['/review'], {
       state: {
         bookingData: this.bookingData,
-        passengers: this.passengers,
+        passengers: normalizedPassengers,
         contact: this.contact,
         totals: {
           baseTotal: this.baseTotal,
@@ -427,7 +502,10 @@ goBackToSearch(): void {
           taxAmount: this.taxAmount,
           convenienceFee: this.convenienceFee,
           grandTotal: this.grandTotal
-        }
+        },
+        // ✅ Pass Travel Protection selections
+        departureInsurance: this.departureInsurance,
+        returnInsurance: this.returnInsurance
       }
     });
   }

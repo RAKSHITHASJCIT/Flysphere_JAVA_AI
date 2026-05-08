@@ -221,33 +221,114 @@
   position: sticky;
   top: 100px;
   height: fit-content;
+  animation: fadeInPanel 0.4s ease-in-out;
 }
 
+/* ✅ Enhanced Fare Sidebar Card */
 .fare-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  border: 1px solid rgba(37,99,235,0.08);
+  transition: all 0.3s ease;
 }
 
-.airline {
-  color: #64748b;
+.fare-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 50px rgba(37,99,235,0.15);
+}
+
+/* ✅ Flight Summary Blocks */
+.flight-block {
+  background: #f1f5f9;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.flight-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #2563eb;
+  margin-bottom: 6px;
+}
+
+.flight-main {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.flight-sub {
   font-size: 13px;
-  margin-bottom: 20px;
+  color: #64748b;
 }
 
+/* ✅ Passenger Pricing Card */
+.passenger-summary {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transition: 0.25s ease;
+}
+
+.passenger-summary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+}
+
+.passenger-heading {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+/* ✅ Price Breakdown Enhancements */
 .price-breakdown .row {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  color: #4b5563;
 }
 
+.subtotal {
+  font-weight: 700;
+  color: #111827;
+}
+
+.price-breakdown hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+/* ✅ Grand Total Highlight */
 .grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 18px;
   font-weight: 800;
-  color: #2563eb;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08));
+  color: #1d4ed8;
+  animation: glowTotal 2.5s ease-in-out infinite alternate;
 }
+
+@keyframes fadeInPanel {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
 /* ✅ Details Panel */
 .details-panel {
@@ -386,6 +467,11 @@
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #e2e8f0;
+}
+
+/* ✅ Standardized vertical rhythm between segment blocks */
+.addons-section .addon-block + .addon-block {
+  margin-top: 32px;
 }
 
 /* ================= LUXURY ADD-ON CARDS ================= */
@@ -673,11 +759,26 @@
 
 .flight-block {
   background: #f8f9fc;
-  padding: 14px 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
+  padding: 18px 20px; /* ✅ Increased internal padding for luxury feel */
+  border-radius: 14px;
+  margin-bottom: 26px; /* ✅ More space between OUTBOUND & RETURN */
   border: 1px solid #e4e7f2;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ✅ Subtle divider between flight sections */
+.flight-block + .flight-block {
+  position: relative;
+}
+
+.flight-block + .flight-block::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
 }
 
 .flight-block:hover {
@@ -687,23 +788,38 @@
 
 .flight-title {
   font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 4px;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flight-title::before {
+  content: "✈";
+  font-size: 12px;
 }
 
 .flight-main {
   font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.flight-main span {
+  background: linear-gradient(90deg, #2563eb, #00b3ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .flight-sub {
   font-size: 14px;
   color: #6b7280;
-  margin-top: 2px;
+  margin-top: 6px; /* ✅ Increased spacing above details */
 }
 
 .passenger-summary {
@@ -716,10 +832,17 @@
 }
 
 .passenger-heading {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
-  margin-bottom: 12px;
-  color: #374151;
+  margin-bottom: 14px;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.passenger-heading::before {
+  content: "👤";
 }
 
 .price-breakdown .row {
@@ -746,6 +869,10 @@
   font-size: 18px;
   font-weight: 800;
   color: #1d4ed8;
+  background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(0,179,255,0.12));
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(37,99,235,0.15);
 }
 
 .grand-total span:last-child {
@@ -849,6 +976,16 @@
   letter-spacing: 0.4px;
 }
 
+/* ================= ADD-ON SECTION TITLES ================= */
+
+.addon-block-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d4ed8; /* Premium blue */
+  margin-bottom: 14px;
+  letter-spacing: 0.3px;
+}
+
 /* ================= SEGMENTED CONTROL STYLE ================= */
 
 .segmented-control {
@@ -922,4 +1059,158 @@
   margin-top: 10px;
   padding-top: 18px;
   border-top: 1px solid #f1f5f9;
+}
+
+/* ================= NEXT LEVEL PREMIUM ENHANCEMENTS ================= */
+
+/* ✅ Gradient Badge for Outbound / Return */
+.segment-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.segment-badge.outbound {
+  background: linear-gradient(90deg, #2563eb, #00b3ff);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+}
+
+.segment-badge.return {
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.25);
+}
+
+/* ✅ Sticky Total Payable */
+.sticky-total {
+  position: sticky;
+  bottom: 0;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(37,99,235,0.15);
+  box-shadow: 0 -8px 25px rgba(0,0,0,0.06);
+  z-index: 5;
+}
+
+/* ✅ Animated Number Counter Effect */
+.animated-price {
+  font-weight: 800;
+  font-size: 20px;
+  background: linear-gradient(90deg, #2563eb, #00b3ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pricePulse 1.2s ease-in-out;
+}
+
+@keyframes pricePulse {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ✅ Savings Badge (Round Trip Discount) */
+.savings-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #10b981, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+  letter-spacing: 0.5px;
+}
+
+/* ✅ Soft Glassmorphism Effect for Fare Panel */
+.fare-card {
+  backdrop-filter: blur(14px);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* ========================================================= */
+/* ============== FULL PAGE PREMIUM COLOR UPGRADE ========== */
+/* ========================================================= */
+
+/* Page background enhancement */
+.booking-wrapper {
+  background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(0,179,255,0.08));
+  border-radius: 24px;
+}
+
+/* Section titles with icons */
+.details-panel h2::before {
+  content: "🧳 ";
+}
+
+.addon-block-title::before {
+  content: "✈ ";
+}
+
+.section-label::before {
+  content: "• ";
+  color: #2563eb;
+}
+
+/* Departure Add-ons Title */
+.addon-block-title {
+  background: linear-gradient(90deg, #2563eb, #00b3ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Add-on Cards Premium Look */
+.luxury-addon-card {
+  background: linear-gradient(145deg, #ffffff, #f1f6ff);
+  border-left: 4px solid #2563eb;
+}
+
+/* Toggle label emphasis */
+.addon-title::before {
+  content: "🎒 ";
+}
+
+/* Travel Protection */
+.insurance-card .addon-title::before {
+  content: "🛡 ";
+}
+
+/* Form labels icon hint */
+.floating-field label::before {
+  content: "✏ ";
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Input focus glow enhancement */
+.form-grid input:focus,
+.form-grid select:focus {
+  background: #f8fbff;
+}
+
+/* Segmented control selected glow */
+.segmented-control button.active {
+  box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+}
+
+/* Fare Breakdown Icons Removed */
+
+/* Add subtle card hover animation across page */
+.details-panel,
+.passenger-card,
+.luxury-addon-card {
+  transition: all 0.3s ease;
+}
+
+.details-panel:hover {
+  box-shadow: 0 18px 45px rgba(37,99,235,0.12);
 }

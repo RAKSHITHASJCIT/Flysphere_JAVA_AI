@@ -50,10 +50,29 @@ export class EditFlight implements OnInit {
           return;
         }
 
-        // ✅ Backend already returns lowercase keys (as seen in console)
-        // Assign directly and only adjust date/time format for inputs
-
-        this.flight = { ...data };
+    // ✅ Normalize backend camelCase response to lowercase keys used by form
+    this.flight = {
+      ...data,
+      flightid: data.flightid ?? data.flightId ?? data.id,
+      flightno: data.flightno ?? data.flightNo,
+      airlinename: data.airlinename ?? data.airlineName,
+      departureairport: data.departureairport ?? data.departureAirport,
+      arrivalairport: data.arrivalairport ?? data.arrivalAirport,
+      departuredate: data.departuredate ?? data.departureDate,
+      arrivaldate: data.arrivaldate ?? data.arrivalDate,
+      departuretime: data.departuretime ?? data.departureTime,
+      arrivaltime: data.arrivaltime ?? data.arrivalTime,
+      flighttype: data.flighttype ?? data.flightType,
+      totaleconomyseats: data.totaleconomyseats ?? data.totalEconomySeats,
+      totalbusinessseats: data.totalbusinessseats ?? data.totalBusinessSeats,
+      totalfirstclassseats: data.totalfirstclassseats ?? data.totalFirstClassSeats,
+      economyadultfare: data.economyadultfare ?? data.economyAdultFare,
+      economychildfare: data.economychildfare ?? data.economyChildFare,
+      businessadultfare: data.businessadultfare ?? data.businessAdultFare,
+      businesschildfare: data.businesschildfare ?? data.businessChildFare,
+      firstadultfare: data.firstadultfare ?? data.firstAdultFare,
+      firstchildfare: data.firstchildfare ?? data.firstChildFare
+    };
         // ✅ No original comparison needed
 
         // ✅ Normalize BOTH objects for accurate comparison
@@ -115,27 +134,26 @@ export class EditFlight implements OnInit {
 
     // ✅ Always reset status to Scheduled on edit
     const payload = {
-        AirlineName: this.flight.airlinename,
-        FlightType: this.flight.flighttype,
-        FlightNo: this.flight.flightno,
-        DepartureAirport: this.flight.departureairport,
-        ArrivalAirport: this.flight.arrivalairport,
-        DepartureDate: this.flight.departuredate,
-        ArrivalDate: this.flight.arrivaldate,
-        DepartureTime: this.flight.departuretime,
-        ArrivalTime: this.flight.arrivaltime,
-        TotalEconomySeats: this.flight.totaleconomyseats,
-        TotalBusinessSeats: this.flight.totalbusinessseats,
-        TotalFirstClassSeats: this.flight.totalfirstclassseats,
-
-        EconomyAdultFare: this.flight.economyadultfare,
-        EconomyChildFare: this.flight.economychildfare,
-        BusinessAdultFare: this.flight.businessadultfare,
-        BusinessChildFare: this.flight.businesschildfare,
-        FirstAdultFare: this.flight.firstadultfare,
-        FirstChildFare: this.flight.firstchildfare,
-
-        FlightStatus: 'Scheduled'
+        airlineName: this.flight.airlinename,
+        flightType: this.flight.flighttype,
+        flightNo: this.flight.flightno,
+        departureAirport: this.flight.departureairport,
+        arrivalAirport: this.flight.arrivalairport,
+        departureDate: this.flight.departuredate,
+        arrivalDate: this.flight.arrivaldate,
+        departureTime: this.flight.departuretime,
+        arrivalTime: this.flight.arrivaltime,
+        totalEconomySeats: this.flight.totaleconomyseats,
+        totalBusinessSeats: this.flight.totalbusinessseats,
+        totalFirstClassSeats: this.flight.totalfirstclassseats,
+        economyAdultFare: this.flight.economyadultfare,
+        economyChildFare: this.flight.economychildfare,
+        businessAdultFare: this.flight.businessadultfare,
+        businessChildFare: this.flight.businesschildfare,
+        firstAdultFare: this.flight.firstadultfare,
+        firstChildFare: this.flight.firstchildfare,
+        aircraftType: this.flight.aircrafttype ?? this.flight.aircraftType,
+        flightStatus: 'Scheduled'
       };
 
     this.http.put(`http://localhost:5000/api/flights/${this.flightId}`, payload)

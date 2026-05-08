@@ -18,6 +18,10 @@ export class ReviewComponent implements OnInit {
   contact: any;
   totals: any;
 
+  // ✅ Travel Protection flags (from Booking page)
+  departureInsurance: boolean = false;
+  returnInsurance: boolean = false;
+
   constructor(private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -32,6 +36,10 @@ export class ReviewComponent implements OnInit {
     this.passengers = state.passengers || [];
     this.contact = state.contact || {};
     this.totals = state.totals || {};
+
+    // ✅ Restore Travel Protection selections
+    this.departureInsurance = state.departureInsurance || false;
+    this.returnInsurance = state.returnInsurance || false;
   }
 
  confirmBooking() {
@@ -41,23 +49,69 @@ export class ReviewComponent implements OnInit {
     ? this.bookingData?.departure?.flight?.id
     : this.bookingData?.flight?.id;
 
-  // NEW: get selected cabin class from bookingData
-  // Adjust the property name to whatever you actually store
-  const selectedCabinClass =
-    this.bookingData?.selectedCabinClass || this.bookingData?.cabinClass || 'Economy';
+  const returnFlightId = isRound
+    ? this.bookingData?.return?.flight?.id
+    : null;
 
-  const payload: any = {
-    user_id: 1, // TODO: replace with logged-in user id
-    outbound_flight_id: outboundFlightId,
-    passengers: this.passengers,
-    total_amount: this.totals?.grandTotal,
-    trip_type: this.bookingData?.tripType || (isRound ? 'round' : 'oneway'),
-    cabin_class: selectedCabinClass   // ✅ send correct cabin to backend
+  // ✅ Get cabin classes separately for departure and return
+  const outboundCabinClass =
+    isRound
+      ? this.bookingData?.departure?.selectedCabinClass
+      : this.bookingData?.selectedCabinClass;
+
+  const returnCabinClass =
+    isRound
+      ? this.bookingData?.return?.selectedCabinClass
+      : null;
+
+  // ✅ Get logged-in user from localStorage
+  const storedUser = localStorage.getItem('user');
+  let loggedInUserId: number | null = null;
+
+  if (storedUser) {
+    const user = JSON.parse(storedUser);
+
+    // ✅ Force correct DB column mapping (users table uses 'id')
+    loggedInUserId = user?.id;
+
+    console.log('Booking will be saved for userId:', loggedInUserId);
+  }
+
+  // ✅ Build segment-level add-ons from passenger + insurance selections
+  const firstPassenger = this.passengers?.length ? this.passengers[0] : null;
+
+  const outboundAddOns = {
+    seatPreference: firstPassenger?.outboundSeat || null,
+    mealPreference: firstPassenger?.outboundMeal || null,
+    extraBaggage: firstPassenger?.baggage || false,
+    travelProtection: this.departureInsurance || false
   };
 
-  if (isRound) {
-    payload.return_flight_id = this.bookingData?.return?.flight?.id;
-  }
+  // ✅ Use return-specific fields (not outbound ones)
+  const returnAddOns = isRound ? {
+    seatPreference: firstPassenger?.returnSeat || null,
+    mealPreference: firstPassenger?.returnMeal || null,
+    extraBaggage: firstPassenger?.baggage || false,
+    travelProtection: this.returnInsurance || false
+  } : null;
+
+  const payload: any = {
+    userId: loggedInUserId,
+    outboundFlightId: outboundFlightId,
+    returnFlightId: returnFlightId,
+    passengers: this.passengers,
+    totalAmount: this.totals?.grandTotal,
+    outboundCabinClass: outboundCabinClass || 'Economy',
+    returnCabinClass: returnCabinClass,
+
+    // ✅ Contact Information
+    contactEmail: this.contact?.email,
+    contactPhone: this.contact?.phone,
+
+    // ✅ Segment-level add-ons
+    outboundAddOns: outboundAddOns,
+    returnAddOns: returnAddOns
+  };
 
   console.log('🚀 Sending booking payload:', payload);
 
@@ -66,15 +120,21 @@ export class ReviewComponent implements OnInit {
       next: (response: any) => {
         console.log('✅ Booking API response:', response);
 
-        if (!response || !response.booking) {
+        if (!response || !response.bookingId) {
           alert('Booking succeeded but response format is unexpected.');
           return;
         }
 
-        this.router.navigate([
-          '/confirmation',
-          response.booking.booking_id
-        ]);
+        this.router.navigate(
+          ['/confirmation', response.bookingId],
+          {
+            state: {
+              bookingData: response,
+              passengers: response.passengers || [],
+              totals: { grandTotal: response.totalAmount }
+            }
+          }
+        );
       },
       error: (error) => {
         console.error('❌ Booking API failed:', error);

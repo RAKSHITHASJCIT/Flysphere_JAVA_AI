@@ -15,6 +15,15 @@ import { AuthService } from '../../services/auth';
 })
 export class FlightSearchComponent implements OnInit {
 
+  // ✅ Ensure return date is never before departure date
+  onDepartureChange() {
+    if (this.tripType === 'round' && this.returnDate) {
+      if (this.returnDate < this.departureDate) {
+        this.returnDate = this.departureDate;
+      }
+    }
+  }
+
   @ViewChild('resultsSection') resultsSection!: ElementRef;
   @ViewChild('departureInput') departureInput!: ElementRef;
   @ViewChild('returnInput') returnInput!: ElementRef;
@@ -37,18 +46,23 @@ export class FlightSearchComponent implements OnInit {
     const today = new Date();
     this.departureDate = today.toISOString().split('T')[0];
 
-    this.auth.getProfile().subscribe({
-      next: (res) => {
-        this.user = res;
-        this.cdr.detectChanges();
-      },
-      error: () => this.logout()
-    });
+    // ✅ Read user directly from localStorage (no backend profile call)
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+      this.cdr.detectChanges();
+    } else {
+      this.logout();
+    }
   }
 
   logout() {
-    this.auth.logout();
+    localStorage.clear();
     this.router.navigate(['/login']);
+  }
+
+  goToMyBookings() {
+    this.router.navigate(['/my-bookings']);
   }
 
   /* ================= SUPPORT ================= */
@@ -311,7 +325,7 @@ export class FlightSearchComponent implements OnInit {
 
       // ✅ Only allow Scheduled flights (case-insensitive safety)
       data = data.filter(f => 
-        f.flightstatus && f.flightstatus.toLowerCase() === 'scheduled'
+        f.flightStatus && f.flightStatus.toLowerCase() === 'scheduled'
       );
 
       const calculateDuration = (dep: string, arr: string) => {
@@ -323,35 +337,32 @@ export class FlightSearchComponent implements OnInit {
       };
 
       this.flights = data.map(f => ({
-        id: f.flightid,
-        airline: f.airlinename,
+        id: f.id,
+        airline: f.airlineName,
 
-        // ✅ Added for display
-        flightno: f.flightno,
-        flighttype: f.flighttype,
+        flightno: f.flightNo,
+        flighttype: f.flightType,
 
-        code: f.flightno,
-        departTime: f.departuretime?.substring(0, 5),
-        departCity: f.departureairport,
-        arriveTime: f.arrivaltime?.substring(0, 5),
-        arriveCity: f.arrivalairport,
-        duration: calculateDuration(f.departuretime, f.arrivaltime),
+        code: f.flightNo,
+        departTime: f.departureTime?.substring(0, 5),
+        departCity: f.departureAirport,
+        arriveTime: f.arrivalTime?.substring(0, 5),
+        arriveCity: f.arrivalAirport,
+        duration: calculateDuration(f.departureTime, f.arrivalTime),
 
-        // ✅ Store full fare structure from DB
-        economyAdultFare: f.economyadultfare,
-        economyChildFare: f.economychildfare,
-        businessAdultFare: f.businessadultfare,
-        businessChildFare: f.businesschildfare,
-        firstAdultFare: f.firstadultfare,
-        firstChildFare: f.firstchildfare,
+        economyAdultFare: f.economyAdultFare,
+        economyChildFare: f.economyChildFare,
+        businessAdultFare: f.businessAdultFare,
+        businessChildFare: f.businessChildFare,
+        firstAdultFare: f.firstAdultFare,
+        firstChildFare: f.firstChildFare,
 
-        totalEconomySeats: f.totaleconomyseats,
-        totalBusinessSeats: f.totalbusinessseats,
-        totalFirstSeats: f.totalfirstclassseats,
+        totalEconomySeats: f.totalEconomySeats,
+        totalBusinessSeats: f.totalBusinessSeats,
+        totalFirstSeats: f.totalFirstClassSeats,
 
-        // ✅ Default display price (Economy adult)
-        price: f.economyadultfare,
-        seats: f.totaleconomyseats
+        price: f.economyAdultFare,
+        seats: f.totalEconomySeats
       }));
 
       if (this.flights.length > 0) {
@@ -377,7 +388,7 @@ export class FlightSearchComponent implements OnInit {
 
           // ✅ Only allow Scheduled flights for return (case-insensitive safety)
           returnData = returnData.filter(f => 
-            f.flightstatus && f.flightstatus.toLowerCase() === 'scheduled'
+            f.flightStatus && f.flightStatus.toLowerCase() === 'scheduled'
           );
 
           const calculateDuration = (dep: string, arr: string) => {
@@ -389,34 +400,32 @@ export class FlightSearchComponent implements OnInit {
           };
 
           this.returnFlights = returnData.map(f => ({
-            id: f.flightid,
-            airline: f.airlinename,
+            id: f.id,
+            airline: f.airlineName,
 
-            // ✅ Added for display
-            flightno: f.flightno,
-            flighttype: f.flighttype,
+            flightno: f.flightNo,
+            flighttype: f.flightType,
 
-            code: f.flightno,
-            departTime: f.departuretime?.substring(0, 5),
-            departCity: f.departureairport,
-            arriveTime: f.arrivaltime?.substring(0, 5),
-            arriveCity: f.arrivalairport,
-            duration: calculateDuration(f.departuretime, f.arrivaltime),
+            code: f.flightNo,
+            departTime: f.departureTime?.substring(0, 5),
+            departCity: f.departureAirport,
+            arriveTime: f.arrivalTime?.substring(0, 5),
+            arriveCity: f.arrivalAirport,
+            duration: calculateDuration(f.departureTime, f.arrivalTime),
 
-            // ✅ FULL FARE STRUCTURE (same as departure)
-            economyAdultFare: f.economyadultfare,
-            economyChildFare: f.economychildfare,
-            businessAdultFare: f.businessadultfare,
-            businessChildFare: f.businesschildfare,
-            firstAdultFare: f.firstadultfare,
-            firstChildFare: f.firstchildfare,
+            economyAdultFare: f.economyAdultFare,
+            economyChildFare: f.economyChildFare,
+            businessAdultFare: f.businessAdultFare,
+            businessChildFare: f.businessChildFare,
+            firstAdultFare: f.firstAdultFare,
+            firstChildFare: f.firstChildFare,
 
-            totalEconomySeats: f.totaleconomyseats,
-            totalBusinessSeats: f.totalbusinessseats,
-            totalFirstSeats: f.totalfirstclassseats,
+            totalEconomySeats: f.totalEconomySeats,
+            totalBusinessSeats: f.totalBusinessSeats,
+            totalFirstSeats: f.totalFirstClassSeats,
 
-            price: f.economyadultfare,
-            seats: f.totaleconomyseats
+            price: f.economyAdultFare,
+            seats: f.totalEconomySeats
           }));
 
           if (this.returnFlights.length > 0) {
@@ -614,14 +623,18 @@ export class FlightSearchComponent implements OnInit {
         tripType: 'round',
         departure: {
           flight: this.selectedDeparture,
-          fare: this.selectedDepartureFare
+          fare: this.selectedDepartureFare,
+          selectedCabinClass: this.selectedDepartureFare?.name
         },
         return: {
           flight: this.selectedReturn,
-          fare: this.selectedReturnFare
+          fare: this.selectedReturnFare,
+          selectedCabinClass: this.selectedReturnFare?.name
         },
         adults: this.adults,
-        children: this.children
+        children: this.children,
+        departureDate: this.departureDate,   // ✅ PASS DATE
+        returnDate: this.returnDate          // ✅ PASS DATE
       };
 
       sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
@@ -639,10 +652,12 @@ export class FlightSearchComponent implements OnInit {
 
     const bookingData = {
       tripType: 'oneway',
-      flight: this.selectedFlight,   // ✅ wrapped inside flight (consistent with round-trip)
+      flight: this.selectedFlight,
       fare: fareToBook,
+      selectedCabinClass: fareToBook.name,
       adults: this.adults,
-      children: this.children
+      children: this.children,
+      departureDate: this.departureDate   // ✅ PASS DATE
     };
 
     sessionStorage.setItem('bookingData', JSON.stringify(bookingData));

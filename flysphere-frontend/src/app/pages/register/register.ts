@@ -151,12 +151,17 @@ export class Register {
     return 'Weak';
   }
 
+  get isEmailValid(): boolean {
+    return this.email.includes('@');
+  }
+
   get canRegister(): boolean {
     return Boolean(
       this.firstName &&
       this.lastName &&
       this.phone &&
       this.email &&
+      this.isEmailValid &&
       this.password &&
       this.confirmPassword &&
       this.passwordsMatch &&
@@ -169,12 +174,20 @@ export class Register {
 
     this.loading = true;
 
+    if (!this.isEmailValid) {
+      this.loading = false;
+      this.message = 'Email must contain @ symbol';
+      return;
+    }
+
     if (!this.passwordsMatch) {
+      this.loading = false;
       this.message = 'Passwords do not match';
       return;
     }
 
     if (!this.termsAccepted) {
+      this.loading = false;
       this.message = 'Please accept Terms & Conditions';
       return;
     }

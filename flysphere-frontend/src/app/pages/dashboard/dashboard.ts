@@ -18,24 +18,16 @@ export class Dashboard implements OnInit {
   constructor(private auth: AuthService) {}
 
   ngOnInit() {
-    const token = this.auth.getToken();
+    // ✅ LocalStorage-based auth (no JWT, no profile API)
+    const storedUser = localStorage.getItem('user');
 
-    if (!token) {
+    if (!storedUser) {
       window.location.href = '/login';
       return;
     }
 
-    this.auth.getProfile().subscribe({
-      next: (res: any) => {
-        this.user = res;
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.role = payload.role;
-      },
-      error: () => {
-        this.auth.logout();
-        window.location.href = '/login';
-      }
-    });
+    this.user = JSON.parse(storedUser);
+    this.role = this.user.role;
   }
 
   logout() {

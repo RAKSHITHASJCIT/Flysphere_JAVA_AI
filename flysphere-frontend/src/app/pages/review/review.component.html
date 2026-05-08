@@ -16,25 +16,21 @@
         <!-- Departure Block -->
         <div class="flight-review-block premium-flight-block">
           <div class="flight-header">
-            ✈ Departure
-            <div class="flight-date">
-              {{ bookingData?.departure?.flight?.departuredate || bookingData?.departure?.flight?.DepartureDate | date:'EEE, dd MMM yyyy' }}
-            </div>
+            ✈ Outbound
           </div>
 
           <div class="flight-main-row">
-            <div class="flight-time-hero">
+            <div>
+              <strong>Departure :</strong>
+              {{ bookingData?.departure?.flight?.departCity }}
               {{ bookingData?.departure?.flight?.departTime }}
             </div>
 
-            <div class="flight-route-hero">
-              {{ bookingData?.departure?.flight?.departure }}
- 
-              {{ bookingData?.departure?.flight?.arrival }}
-            </div>
-
-            <div class="flight-time-hero">
+            <div>
+              <strong>Arrival :</strong>
+              {{ bookingData?.departure?.flight?.arriveCity }}
               {{ bookingData?.departure?.flight?.arrivalTime }}
+              {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
             </div>
           </div>
 
@@ -50,23 +46,20 @@
         <div class="flight-review-block premium-flight-block" style="margin-top:16px;">
           <div class="flight-header">
             ✈ Return
-            <div class="flight-date">
-              {{ bookingData?.return?.flight?.arrivaldate || bookingData?.return?.flight?.ArrivalDate | date:'EEE, dd MMM yyyy' }}
-            </div>
           </div>
 
           <div class="flight-main-row">
-            <div class="flight-time-hero">
+            <div>
+              <strong>Departure :</strong>
+              {{ bookingData?.return?.flight?.departCity }}
               {{ bookingData?.return?.flight?.departTime }}
             </div>
 
-            <div class="flight-route-hero">
-              {{ bookingData?.return?.flight?.departure }}
-              {{ bookingData?.return?.flight?.arrival }}
-            </div>
-
-            <div class="flight-time-hero">
+            <div>
+              <strong>Arrival :</strong>
+              {{ bookingData?.return?.flight?.arriveCity }}
               {{ bookingData?.return?.flight?.arrivalTime }}
+              {{ bookingData?.returnDate | date:'EEE, dd MMM yyyy' }}
             </div>
           </div>
 
@@ -84,22 +77,22 @@
       <ng-template #oneWayBlock>
         <div class="flight-review-block premium-flight-block">
           <div class="flight-header">
-            ✈ Departure
-            <div class="flight-date">
-              {{
-                (bookingData?.flight?.departuredate ||
-                  bookingData?.flight?.DepartureDate ||
-                  bookingData?.departuredate ||
-                  bookingData?.departureDate ||
-                  bookingData?.departDate) | date: 'EEE, dd MMM yyyy'
-              }}
-            </div>
+            ✈ Outbound
           </div>
 
           <div class="flight-main-row">
-            <div class="flight-time-hero">
-              {{ bookingData?.flight?.departTime || bookingData?.departTime || '' }}
-            </div>            
+            <div>
+              <strong>Departure :</strong>
+              {{ bookingData?.flight?.departCity }}
+              {{ bookingData?.flight?.departTime }}
+            </div>
+
+            <div>
+              <strong>Arrival :</strong>
+              {{ bookingData?.flight?.arriveCity }}
+              {{ bookingData?.flight?.arrivalTime }}
+              {{ bookingData?.departureDate | date:'EEE, dd MMM yyyy' }}
+            </div>
           </div>
 
           <div class="flight-meta-line">
@@ -143,28 +136,85 @@
         </div>
 
         <div class="addons premium-addons">
-          <span class="addon-badge">
-            🎟 Seat:
-            {{ p.seatPreference ? (p.seatPreference | titlecase) : 'No Seat Selected' }}
+
+          <!-- ✅ Outbound Grouped -->
+          <div class="segment-group">
+            <div class="segment-title">✈ Outbound</div>
+            <span class="addon-badge">
+              💺 Seat:
+              {{ p.departureSeat ? (p.departureSeat | titlecase) : 'No Seat Selected' }}
+            </span>
+            <span class="addon-badge">
+              🍽 Meal:
+              {{ p.departureMeal ? (p.departureMeal | titlecase) : 'No Meal Selected' }}
+            </span>
+            <span class="addon-badge">
+              🧳 Baggage:
+              {{ p.departureBaggage ? '+10kg Added' : 'Standard Allowance' }}
+            </span>
+          </div>
+
+          <!-- ✅ Return Grouped (Round Trip Only) -->
+          <ng-container *ngIf="bookingData?.tripType === 'round'">
+            <div class="segment-group">
+              <div class="segment-title">🔁 Return</div>
+              <span class="addon-badge">
+                💺 Seat:
+                {{ p.returnSeat ? (p.returnSeat | titlecase) : 'No Seat Selected' }}
+              </span>
+              <span class="addon-badge">
+                🍽 Meal:
+                {{ p.returnMeal ? (p.returnMeal | titlecase) : 'No Meal Selected' }}
+              </span>
+              <span class="addon-badge">
+                🧳 Baggage:
+                {{ p.returnBaggage ? '+10kg Added' : 'Standard Allowance' }}
+              </span>
+            </div>
+          </ng-container>
+
+          <!-- ✅ Travel Protection -->
+          <span class="addon-badge" *ngIf="departureInsurance || returnInsurance">
+            🛡 Travel Protection:
+            {{
+              departureInsurance && returnInsurance
+                ? 'Outbound + Return (Bundle)'
+                : departureInsurance
+                  ? 'Outbound Only'
+                  : 'Return Only'
+            }}
           </span>
 
-          <span class="addon-badge">
-            🍽 Meal:
-            {{ p.mealPreference ? (p.mealPreference | titlecase) : 'No Meal Selected' }}
-          </span>
-
-          <span class="addon-badge">
-            🧳 Baggage:
-            {{ p.baggage ? '+10kg Added' : 'Standard Allowance' }}
-          </span>
         </div>
       </div>
 
       <hr>
 
       <h4>Contact</h4>
-      <p>{{ contact?.email }}</p>
-      <p>{{ contact?.phone }}</p>
+
+      <div class="contact-row">
+
+        <div class="contact-card">
+          <div class="contact-icon email-icon">
+            ✉
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">Email</div>
+            <div class="contact-value">{{ contact?.email }}</div>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="contact-icon phone-icon">
+            ☎
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">Contact Number</div>
+            <div class="contact-value">{{ contact?.phone }}</div>
+          </div>
+        </div>
+
+      </div>
 
     </div>
 

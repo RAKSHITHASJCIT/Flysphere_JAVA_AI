@@ -38,7 +38,10 @@ export class Login {
 
     this.auth.login(data).subscribe({
       next: (res: any) => {
-        this.auth.saveToken(res.token);
+
+        // ✅ Store entire user object (no JWT for now)
+        localStorage.setItem('user', JSON.stringify(res));
+
         this.message = '✅ Login Successful';
 
         if (res.role === 'ADMIN') {

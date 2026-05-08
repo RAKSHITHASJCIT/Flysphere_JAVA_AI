@@ -37,6 +37,10 @@
           </div>
         </div>
 
+        <button class="logout-btn" (click)="goToMyBookings()">
+          My Bookings
+        </button>
+
         <button class="logout-btn" (click)="logout()">
           Logout
         </button>
@@ -104,11 +108,12 @@
         </div>
 
         <!-- Real native input (programmatic trigger only) -->
-        <input 
-          #departureInput
-          type="date" 
-          [(ngModel)]="departureDate"
-          class="real-date-input">
+          <input 
+            #departureInput
+            type="date" 
+            [(ngModel)]="departureDate"
+            (ngModelChange)="onDepartureChange()"
+            class="real-date-input">
       </div>
 
       <!-- RETURN (ALWAYS VISIBLE) -->
@@ -132,6 +137,7 @@
             #returnInput
             type="date"
             [(ngModel)]="returnDate"
+            [min]="departureDate"
             class="real-date-input">
         </ng-container>
 
@@ -608,8 +614,9 @@
                      extras:['Luxury Seats','Premium Meals','Lounge Access']
                    }
                  ]"
-                 (click)="selectedDepartureFare = fare"
-                 [class.active-fare]="selectedDepartureFare === fare">
+                 (click)="fare.seats > 0 && (selectedDepartureFare = fare)"
+                 [class.active-fare]="selectedDepartureFare === fare"
+                 [class.disabled-fare]="fare.seats === 0">
 
               <div class="fare-price">
                 <!-- Adult fare (always visible) -->
@@ -626,13 +633,24 @@
 
                 <div class="fare-name">{{ fare.name }}</div>
                 <div class="seat-availability"
-                     [ngClass]="{'low-seats': fare.seats <= 6}">
-                  <ng-container *ngIf="fare.seats > 6">
+                     [ngClass]="{
+                       'low-seats': fare.seats > 0 && fare.seats <= 6,
+                       'no-seats': !fare.seats || fare.seats <= 0
+                     }">
+
+                  <span *ngIf="fare.seats > 6">
                     Seats: {{ fare.seats }}
-                  </ng-container>
-                  <ng-container *ngIf="fare.seats <= 6">
+                  </span>
+
+                  <span *ngIf="fare.seats > 0 && fare.seats <= 6">
                     Only {{ fare.seats }} seats left
-                  </ng-container>
+                  </span>
+
+                  <span *ngIf="!fare.seats || fare.seats <= 0"
+                        style="color:#d32f2f;font-weight:600;">
+                    No seat available
+                  </span>
+
                 </div>
               </div>
 
@@ -695,8 +713,9 @@
                      extras:['Luxury Seats','Premium Meals','Lounge Access']
                    }
                  ]"
-                 (click)="selectedReturnFare = fare"
-                 [class.active-fare]="selectedReturnFare === fare">
+                 (click)="fare.seats > 0 && (selectedReturnFare = fare)"
+                 [class.active-fare]="selectedReturnFare === fare"
+                 [class.disabled-fare]="fare.seats === 0">
 
               <div class="fare-price">
                 <!-- Adult fare (always visible) -->
@@ -713,12 +732,20 @@
 
                 <div class="fare-name">{{ fare.name }}</div>
                 <div class="seat-availability"
-                     [ngClass]="{'low-seats': fare.seats <= 6}">
+                     [ngClass]="{
+                       'low-seats': fare.seats > 0 && fare.seats <= 6,
+                       'no-seats': !fare.seats || fare.seats <= 0
+                     }">
                   <ng-container *ngIf="fare.seats > 6">
                     Seats: {{ fare.seats }}
                   </ng-container>
-                  <ng-container *ngIf="fare.seats <= 6">
+                  <ng-container *ngIf="fare.seats > 0 && fare.seats <= 6">
                     Only {{ fare.seats }} seats left
+                  </ng-container>
+                  <ng-container *ngIf="!fare.seats || fare.seats <= 0">
+                    <span style="color:#d32f2f;font-weight:600;">
+                      No seat available
+                    </span>
                   </ng-container>
                 </div>
               </div>
@@ -794,8 +821,9 @@
                      extras:['Luxury Seats','Premium Meals','Lounge Access']
                    }
                  ]"
-                 (click)="selectedFare = fare"
-                 [class.active-fare]="selectedFare === fare">
+                 (click)="fare.seats > 0 && (selectedFare = fare)"
+                 [class.active-fare]="selectedFare === fare"
+                 [class.disabled-fare]="fare.seats === 0">
 
               <div class="fare-price">
                 <!-- Adult fare (always visible) -->

@@ -300,6 +300,7 @@ export class CreateFlight {
       AirlineName,
       FlightType,
       FlightNo,
+      FlightStatus,
       DepartureAirport,
       ArrivalAirport,
       DepartureDate,
@@ -335,23 +336,25 @@ export class CreateFlight {
           };
 
     const payload = {
-      AirlineName,
-      FlightType,
-      FlightNo,
-      DepartureAirport,
-      ArrivalAirport,
-      DepartureDate: `${DepartureDate.getFullYear()}-${(DepartureDate.getMonth()+1).toString().padStart(2,'0')}-${DepartureDate.getDate().toString().padStart(2,'0')}`,
-      ArrivalDate: `${ArrivalDate.getFullYear()}-${(ArrivalDate.getMonth()+1).toString().padStart(2,'0')}-${ArrivalDate.getDate().toString().padStart(2,'0')}`,
-      DepartureTime: DepartureTime + ':00',
-      ArrivalTime: ArrivalTime + ':00',
-      ...seatPayload,
-      EconomyAdultFare,
-      EconomyChildFare,
-      BusinessAdultFare,
-      BusinessChildFare,
-      FirstAdultFare,
-      FirstChildFare,
-      FlightStatus: 'Scheduled'
+      airlineName: AirlineName,
+      flightType: FlightType,
+      flightNo: FlightNo,
+      flightStatus: FlightStatus || 'Scheduled',
+      departureAirport: DepartureAirport,
+      arrivalAirport: ArrivalAirport,
+      departureDate: `${DepartureDate.getFullYear()}-${(DepartureDate.getMonth()+1).toString().padStart(2,'0')}-${DepartureDate.getDate().toString().padStart(2,'0')}`,
+      arrivalDate: `${ArrivalDate.getFullYear()}-${(ArrivalDate.getMonth()+1).toString().padStart(2,'0')}-${ArrivalDate.getDate().toString().padStart(2,'0')}`,
+      departureTime: DepartureTime + ':00',
+      arrivalTime: ArrivalTime + ':00',
+      totalEconomySeats: seatPayload.TotalEconomySeats,
+      totalBusinessSeats: seatPayload.TotalBusinessSeats,
+      totalFirstClassSeats: seatPayload.TotalFirstClassSeats,
+      economyAdultFare: EconomyAdultFare,
+      economyChildFare: EconomyChildFare,
+      businessAdultFare: BusinessAdultFare,
+      businessChildFare: BusinessChildFare,
+      firstAdultFare: FirstAdultFare,
+      firstChildFare: FirstChildFare
     };
 
     this.http.post('http://localhost:5000/api/flights', payload)

@@ -19,24 +19,7 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/login`, data);
   }
 
-  saveToken(token: string) {
-    localStorage.setItem('token', token);
-  }
-
-  getToken() {
-    return localStorage.getItem('token');
-  }
-
   logout() {
-    localStorage.removeItem('token');
-  }
-
-  getProfile(): Observable<any> {
-    const token = this.getToken();
-    return this.http.get(`${this.baseUrl}/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    localStorage.removeItem('user');
   }
 }

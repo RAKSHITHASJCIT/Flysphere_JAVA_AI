@@ -9,7 +9,7 @@
     <div class="tagline">Secure Booking</div>
   </div>
 
-  <div class="booking-steps">
+  <div class="booking-steps" *ngIf="!router.url.includes('my-bookings')">
     <div class="step"
          [class.active]="currentStep === 1"
          [class.completed]="currentStep > 1"
@@ -35,22 +35,36 @@
   </div>
 
   <div class="booking-header-right">
-    <button class="support-btn">📞 Customer Service</button>
-    <div *ngIf="user" class="user-section">
-  <div class="user-info">
-    <div class="user-name">
-      {{ user.firstname }} {{ user.lastname }}
-    </div>
-    <div class="user-email">
-      {{ user.email }}
-    </div>
-  </div>
-  
+    <button 
+      *ngIf="router.url.includes('my-bookings')"
+      type="button"
+      class="logout-btn"
+      (click)="router.navigate(['/search'])">
+      ← Back to Search
+    </button>
 
-  <button class="logout-btn" (click)="logout()">
-    Logout
-  </button>
-</div>
+    <button class="support-btn">📞 Customer Service</button>
+  <div *ngIf="user" class="user-section">
+    <div class="user-info">
+      <div class="user-name">
+        {{ user.firstname }} {{ user.lastname }}
+      </div>
+      <div class="user-email">
+        {{ user.email }}
+      </div>
+    </div>
+
+    <button 
+      type="button" 
+      class="logout-btn" 
+      (click)="goToMyBookings()">
+      My Bookings
+    </button>
+
+    <button type="button" class="logout-btn" (click)="logout()">
+      Logout
+    </button>
+  </div>
 
   </div>
 

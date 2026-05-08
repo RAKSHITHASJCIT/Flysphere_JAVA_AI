@@ -17,7 +17,7 @@ export class BookingNavbarComponent implements OnInit {
   user: any = null;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private auth: AuthService,
     private cdr: ChangeDetectorRef
   ) {
@@ -31,18 +31,22 @@ export class BookingNavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.auth.getProfile().subscribe({
-      next: (res) => {
-        this.user = res;
-        this.cdr.detectChanges();   // ensures navbar updates immediately
-      },
-      error: () => this.logout()
-    });
+    // ✅ Read user directly from localStorage (no backend profile call)
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+      this.cdr.detectChanges();
+    }
   }
 
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  goToMyBookings() {
+    // ✅ Normal Angular navigation (stable)
+    this.router.navigate(['/my-bookings']);
   }
 
   navigateTo(step: number) {

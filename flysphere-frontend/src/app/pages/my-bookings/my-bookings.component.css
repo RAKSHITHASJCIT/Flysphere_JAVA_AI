@@ -1,0 +1,351 @@
+/* ===== Page Wrapper ===== */
+.my-bookings-wrapper {
+  min-height: 100vh;
+  padding: 40px 20px 80px;
+  background: linear-gradient(
+      rgba(15, 23, 42, 0.55),
+      rgba(15, 23, 42, 0.55)
+    ),
+    url('/assets/beach-bg.jpg') no-repeat center center / cover;
+}
+
+/* ===== Header Section ===== */
+.my-bookings-header {
+  max-width: 1100px;
+  margin: 0 auto 30px auto;
+  color: #ffffff;
+}
+
+.my-bookings-header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ===== Filters ===== */
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 260px;
+  padding: 12px 18px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.status-filter {
+  padding: 12px 16px;
+  border-radius: 25px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.reset-btn {
+  padding: 12px 18px;
+  border-radius: 25px;
+  border: none;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.reset-btn:hover {
+  background-color: #2563eb;
+}
+
+/* ===== Bookings Container (Glass Card) ===== */
+.bookings-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Individual Booking Card ===== */
+.booking-card-modern {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 22px;
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  transition: all 0.35s ease;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.booking-card-modern:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(37,99,235,0.18);
+}
+
+/* ✅ Highlight Booking ID */
+.booking-id-highlight {
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  box-shadow: 0 6px 16px rgba(37,99,235,0.35);
+  transition: all 0.3s ease;
+}
+
+.booking-id-highlight:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(124,58,237,0.45);
+}
+
+/* ===== Top Section ===== */
+.booking-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.booking-top h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.booked-date {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ===== Status Pills ===== */
+.status-pill {
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pill.confirmed {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: white;
+  box-shadow: 0 6px 18px rgba(34,197,94,0.35);
+}
+
+.status-pill.cancelled {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: white;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.35);
+}
+
+/* ===== Route Box ===== */
+.route-box {
+  background: #f1f5f9;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.route {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.travel-date {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ===== Booking Meta ===== */
+.booking-meta p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* ===== Buttons ===== */
+.booking-actions-modern {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.outline-btn {
+  padding: 8px 18px;
+  border-radius: 25px;
+  border: 1px solid #3b82f6;
+  background: transparent;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s ease;
+}
+
+.outline-btn:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.outline-btn.danger {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.outline-btn.danger:hover {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* ===== Screenshot Style Pagination ===== */
+.pagination {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-wrapper {
+  background: #e5e7eb;
+  padding: 14px 30px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Page numbers */
+.pagination button {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #475569;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  transition: all 0.25s ease;
+}
+
+/* Active circle */
+.pagination button.active {
+  background-color: #8b9dd9;
+  color: white;
+}
+
+/* Hover effect */
+.pagination button:hover:not(.active) {
+  background-color: #cbd5e1;
+}
+
+/* Arrow buttons */
+.pagination button.nav-btn {
+  font-size: 20px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.pagination button.nav-btn:hover {
+  color: #475569;
+  background-color: transparent;
+}
+
+/* ================= PREMIUM TOOLBAR (GLASS STYLE) ================= */
+.filters {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(18px);
+  padding: 14px 18px;
+  border-radius: 40px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.search-input {
+  background: rgba(255,255,255,0.85);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+}
+
+.status-filter {
+  background: rgba(255,255,255,0.9);
+  transition: all 0.3s ease;
+}
+
+.status-filter:hover {
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+/* ================= ANIMATED STATUS INDICATORS ================= */
+.status-pill {
+  position: relative;
+  overflow: hidden;
+}
+
+.status-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ================= BUTTON CONSISTENCY ================= */
+.outline-btn {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 10px 22px;
+}
+
+.outline-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.25);
+}
+
+/* ================= EXPANDABLE PREVIEW (STYLE READY) ================= */
+.booking-preview {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.booking-preview.open {
+  max-height: 400px;
+  margin-top: 15px;
+}
+
+/* ================= EMPTY STATE DESIGN ================= */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #ffffff;
+}
+
+.empty-state h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+
+.empty-state .btn-primary {
+  box-shadow: 0 12px 28px rgba(37,99,235,0.35);
+}

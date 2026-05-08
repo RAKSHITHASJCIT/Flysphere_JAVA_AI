@@ -77,6 +77,13 @@ export const routes: Routes = [
       import('./pages/confirmation/confirmation.component')
         .then(m => m.ConfirmationComponent)
   },
+  {
+    path: 'my-bookings',
+    loadComponent: () =>
+      import('./pages/my-bookings/my-bookings.component')
+        .then(m => m.MyBookingsComponent),
+    canActivate: [authGuard]
+  },
   { path: 'terms', component: TermsComponent },
   { path: 'privacy', component: PrivacyComponent }
 ];
