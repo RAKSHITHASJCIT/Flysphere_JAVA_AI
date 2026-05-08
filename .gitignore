@@ -1,5 +1,11 @@
 # Node modules
+# Angular
 node_modules/
+dist/
+
+# Spring Boot
+flysphere-backend/target/
+*.jar
 
 # Angular build output
 dist/
