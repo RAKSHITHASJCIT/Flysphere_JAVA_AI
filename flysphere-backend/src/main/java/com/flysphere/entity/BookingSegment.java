@@ -35,7 +35,7 @@ public class BookingSegment {
     private Boolean travelProtection;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonBackReference
     private Booking booking;
 

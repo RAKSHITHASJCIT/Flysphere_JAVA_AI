@@ -37,6 +37,7 @@ public class BookingService {
         Booking booking = Booking.builder()
                 .bookingId(bookingCode)
                 .userId(userId)
+                .flightId(outboundFlightId)
                 .totalAmount(totalAmount)
                 .contactEmail(contactEmail)
                 .contactPhone(contactPhone)

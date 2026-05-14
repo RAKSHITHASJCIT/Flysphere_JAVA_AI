@@ -45,8 +45,10 @@ export class BookingNavbarComponent implements OnInit {
   }
 
   goToMyBookings() {
-    // ✅ Normal Angular navigation (stable)
-    this.router.navigate(['/my-bookings']);
+    // Prevent duplicate navigation issues
+    if (this.router.url !== '/my-bookings') {
+      this.router.navigate(['/my-bookings']);
+    }
   }
 
   navigateTo(step: number) {

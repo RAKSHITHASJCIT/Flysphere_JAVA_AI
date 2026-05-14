@@ -25,6 +25,9 @@ public class Booking {
 
     private Long userId;
 
+    @Column(name = "Flight_id", nullable = false)
+    private Long flightId;
+
     private Double totalAmount;
 
     // ✅ Contact Information
